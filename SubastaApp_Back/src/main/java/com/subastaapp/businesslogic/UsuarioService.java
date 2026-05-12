@@ -9,6 +9,7 @@ import com.subastaapp.dto.response.TokenResponse;
 import com.subastaapp.dto.response.UsuarioResponse;
 import com.subastaapp.exception.ConflictException;
 import com.subastaapp.exception.ResourceNotFoundException;
+import com.subastaapp.exception.UnauthorizedException;
 import com.subastaapp.model.Usuario;
 import com.subastaapp.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,9 +39,9 @@ public class UsuarioService {
 
     public TokenResponse login(LoginRequest req) {
         Usuario usuario = usuarioRepository.findByDocumento(req.getDocumento())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+                .orElseThrow(() -> new UnauthorizedException("Credenciales inválidas"));
         if (!passwordEncoder.matches(req.getPassword(), usuario.getPassword())) {
-            throw new IllegalArgumentException("Credenciales invalidas");
+            throw new UnauthorizedException("Credenciales inválidas");
         }
         return new TokenResponse(jwtUtil.generateToken(usuario.getDocumento()));
     }
