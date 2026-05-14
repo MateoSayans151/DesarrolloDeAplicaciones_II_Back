@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "usuarios")
 @Data
@@ -22,13 +25,28 @@ public class Usuario {
     @Column(nullable = false)
     private String nombre;
 
-    private String direccion;
+    @Column(nullable = false)
+    private String apellido;
+
+    @Column(nullable = false)
+    private String pais;
+
+    private String domicilio;
 
     @Column(nullable = false)
     private String password;
 
     @Column(columnDefinition = "TEXT")
     private String fotoBase64;
+
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String fotoDocumentoFrente;
+
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String fotoDocumentoDorso;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private List<MedioPago> medioPagos = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

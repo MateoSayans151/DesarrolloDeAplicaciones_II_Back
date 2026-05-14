@@ -1,20 +1,20 @@
 package com.subastaapp.businesslogic;
 
 import com.subastaapp.config.JwtUtil;
-import com.subastaapp.dto.request.LoginRequest;
-import com.subastaapp.dto.request.UsuarioRegistroRequest;
-import com.subastaapp.dto.request.UsuarioUpdateRequest;
-import com.subastaapp.dto.request.UsuarioVerificacionRequest;
+import com.subastaapp.dto.request.*;
 import com.subastaapp.dto.response.TokenResponse;
 import com.subastaapp.dto.response.UsuarioResponse;
 import com.subastaapp.exception.ConflictException;
 import com.subastaapp.exception.ResourceNotFoundException;
 import com.subastaapp.exception.UnauthorizedException;
-import com.subastaapp.model.Usuario;
+import com.subastaapp.mapper.MedioPagoMapper;
+import com.subastaapp.model.*;
 import com.subastaapp.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +22,7 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final MedioPagoMapper medioPagoMapper;
     private final JwtUtil jwtUtil;
 
     public UsuarioResponse registrar(UsuarioRegistroRequest req) {
@@ -31,9 +32,28 @@ public class UsuarioService {
         Usuario usuario = new Usuario();
         usuario.setDocumento(req.getDocumento());
         usuario.setNombre(req.getNombre());
-        usuario.setDireccion(req.getDireccion());
+        usuario.setDomicilio(req.getDomicilio());
+        usuario.setApellido(req.getApellido());
+        usuario.setPais(req.getPais());
         usuario.setPassword(passwordEncoder.encode(req.getPassword()));
+        usuario.setFotoDocumentoFrente(req.getFotoDocumentoFrente());
+        usuario.setFotoDocumentoDorso(req.getFotoDocumentoDorso());
+        if(req.getFotoPerfil() != null && !req.getFotoPerfil().isBlank()) {
+            usuario.setFotoBase64(req.getFotoPerfil());
+        }
+        else{
+            String defaultPfp = "https://ui-avatars.com/api/?name=" + req.getNombre() + "+" + req.getApellido() + "&background=random";
+            usuario.setFotoBase64(defaultPfp);
+        }
+
+        //Mappear los medios de pago dto a entidades
+        List<MedioPago> entidadesPago = req.getMedioPagos().stream()
+                .map(pagoReq -> medioPagoMapper.toEntity(pagoReq, usuario))
+                .collect(Collectors.toList());
+
+        usuario.setMedioPagos(entidadesPago);
         usuario.setVerificado(Usuario.EstadoVerificacion.no);
+
         return UsuarioResponse.from(usuarioRepository.save(usuario));
     }
 
@@ -60,7 +80,7 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findByDocumento(documento)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
         if (req.getNombre() != null) usuario.setNombre(req.getNombre());
-        if (req.getDireccion() != null) usuario.setDireccion(req.getDireccion());
+        if (req.getDireccion() != null) usuario.setDomicilio(req.getDireccion());
         if (req.getFotoBase64() != null) usuario.setFotoBase64(req.getFotoBase64());
         return UsuarioResponse.from(usuarioRepository.save(usuario));
     }
