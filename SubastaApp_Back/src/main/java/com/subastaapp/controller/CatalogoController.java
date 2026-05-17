@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.security.core.Authentication;
 import java.util.List;
 
 @RestController
@@ -26,8 +27,8 @@ public class CatalogoController {
     private final ProductoService productoService;
 
     @PostMapping
-    public ResponseEntity<CatalogoResponse> crear(@Valid @RequestBody CatalogoRequest req) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(catalogoService.crear(req));
+    public ResponseEntity<CatalogoResponse> crear(Authentication auth, @Valid @RequestBody CatalogoRequest req) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(catalogoService.crear(req, auth.getName()));
     }
 
     @GetMapping("/{id}/detalle")
@@ -47,8 +48,9 @@ public class CatalogoController {
     }
 
     @PostMapping("/{id}/productos")
-    public ResponseEntity<ProductoResponse> crearProducto(@PathVariable Long id,
+    public ResponseEntity<ProductoResponse> crearProducto(Authentication auth,
+                                                           @PathVariable Long id,
                                                            @Valid @RequestBody ProductoRequest req) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(productoService.crearEnCatalogo(id, req));
+        return ResponseEntity.status(HttpStatus.CREATED).body(productoService.crearEnCatalogo(id, req, auth.getName()));
     }
 }

@@ -9,6 +9,5 @@ public class CatalogoRequest {
     @NotBlank
     private String descripcion;
     private Long subasta;
-    @NotNull
     private Long creadorUsuarioId;
 }

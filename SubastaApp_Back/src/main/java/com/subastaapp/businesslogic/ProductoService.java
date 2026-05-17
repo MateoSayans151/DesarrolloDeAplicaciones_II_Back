@@ -29,11 +29,13 @@ public class ProductoService {
     private final ItemCatalogoRepository itemCatalogoRepository;
     private final FotoRepository fotoRepository;
 
-    public ProductoResponse crearEnCatalogo(Long catalogoId, ProductoRequest req) {
+    @org.springframework.transaction.annotation.Transactional
+    public ProductoResponse crearEnCatalogo(Long catalogoId, ProductoRequest req, String documento) {
         Catalogo catalogo = catalogoRepository.findById(catalogoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Catalogo no encontrado"));
-        Usuario propietario = usuarioRepository.findById(req.getPropietarioUsuarioId())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario propietario no encontrado"));
+        
+        Usuario propietario = usuarioRepository.findByDocumento(documento)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         Producto producto = new Producto();
         producto.setFecha(req.getFecha());
@@ -42,17 +44,17 @@ public class ProductoService {
         producto.setDescripcionCompleta(req.getDescripcionCompleta());
         producto.setPropietarioUsuario(propietario);
         producto.setSeguro(req.getSeguro());
-        productoRepository.save(producto);
+        Producto productoGuardado = productoRepository.save(producto);
 
         // Vincula automaticamente el producto al catalogo con valores por defecto
         ItemCatalogo item = new ItemCatalogo();
         item.setCatalogo(catalogo);
-        item.setProducto(producto);
+        item.setProducto(productoGuardado);
         item.setPrecioBase(BigDecimal.ZERO);
         item.setComision(BigDecimal.ZERO);
         itemCatalogoRepository.save(item);
 
-        return ProductoResponse.from(producto);
+        return ProductoResponse.from(productoGuardado);
     }
 
     public void agregarFoto(Long productoId, FotoRequest req) {
