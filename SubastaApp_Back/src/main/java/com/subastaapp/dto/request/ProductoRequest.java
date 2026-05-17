@@ -14,7 +14,6 @@ public class ProductoRequest {
     private String descripcionCatalogo;
     @NotBlank
     private String descripcionCompleta;
-    @NotNull
     private Long propietarioUsuarioId;
     private String seguro;
 }

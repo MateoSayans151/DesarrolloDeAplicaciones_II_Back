@@ -32,9 +32,9 @@ public class CatalogoService {
     private final ItemCatalogoRepository itemCatalogoRepository;
     private final ProductoRepository productoRepository;
 
-    public CatalogoResponse crear(CatalogoRequest req) {
-        Usuario creador = usuarioRepository.findById(req.getCreadorUsuarioId())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario creador no encontrado"));
+    public CatalogoResponse crear(CatalogoRequest req, String documento) {
+        Usuario creador = usuarioRepository.findByDocumento(documento)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
         Catalogo catalogo = new Catalogo();
         catalogo.setDescripcion(req.getDescripcion());
         catalogo.setCreadorUsuario(creador);

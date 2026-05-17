@@ -1,0 +1,42 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+*.class
+*.jar
+*.log
+
+# Gradle
+.gradle/
+build/
+
+# Spring Boot
+*.pid
+
+# Environment variables
+.env
+.env.local
+
+# Node (if using frontend build)
+node_modules/
+dist/
+npm-debug.log
+
+# Resources
+src/main/resources/application-*.properties
