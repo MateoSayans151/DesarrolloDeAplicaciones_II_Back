@@ -10,7 +10,7 @@ public class TarjetaCreditoRequest extends MedioPagoRequest {
     @NotBlank
     private String nombreTitular;
     @NotBlank
-    private String fechaVencimento;
+    private String fechaVencimiento;
     @NotBlank
     private String cvv;
 }
