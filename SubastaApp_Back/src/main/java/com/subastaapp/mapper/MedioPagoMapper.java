@@ -16,7 +16,7 @@ public class MedioPagoMapper {
             TarjetaCredito tc = new TarjetaCredito();
             tc.setNumeroTarjeta(tcReq.getNumeroTarjeta());
             tc.setNombreTitular(tcReq.getNombreTitular());
-            tc.setFechaVencimiento(tcReq.getFechaVencimento());
+            tc.setFechaVencimiento(tcReq.getFechaVencimiento());
             tc.setCvv(tcReq.getCvv());
             tc.setUsuario(usuario);
             tc.setVerificado(MedioPago.EstadoVerificacion.no);
