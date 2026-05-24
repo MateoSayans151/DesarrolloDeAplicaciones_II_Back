@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-
 import java.math.BigDecimal;
 
 @Entity
@@ -26,9 +25,17 @@ public class ItemCatalogo {
     @JoinColumn(name = "producto_id", nullable = false)
     private Producto producto;
 
-    @Column(nullable = false, precision = 12, scale = 2)
+    @Column(nullable = false, precision = 18, scale = 2)
     private BigDecimal precioBase;
 
-    @Column(nullable = false, precision = 5, scale = 2)
+    @Column(nullable = false, precision = 18, scale = 2)
     private BigDecimal comision;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, name = "subastado")
+    private subastado_bool subastado;
+
+    public enum subastado_bool{
+        si, no
+    }
 }

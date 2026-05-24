@@ -1,0 +1,5 @@
+### Obtener subasta por ID
+GET http://localhost:8080/api/v1/subastas/1
+Content-Type: application/json
+
+###

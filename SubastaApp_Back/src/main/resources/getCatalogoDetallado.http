@@ -1,0 +1,5 @@
+### Obtener el catalogo de una subasta dado su id (id de la subasta, no del catalogo)
+GET http://localhost:8080/api/v1/catalogos/1/detalle
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0MTIzNDU2NyIsImlhdCI6MTc3OTU5ODEyMSwiZXhwIjoxNzc5Njg0NTIxfQ.xX6VnCB7oEajiJMawmAW4PKWa8NNIUFB0aM4gZzwmq4
+###

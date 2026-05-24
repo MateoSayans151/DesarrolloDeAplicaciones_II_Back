@@ -37,6 +37,9 @@ public class Subasta {
 
     private Integer capacidadAsistentes;
 
+    @OneToOne(mappedBy = "subasta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Catalogo catalogo;
+
     @Enumerated(EnumType.STRING)
     private OpcionSiNo tieneDeposito;
 
