@@ -18,6 +18,9 @@ public class UsuarioResponse {
     private String fotoDocumentoDorso;
     private Usuario.EstadoVerificacion verificado;
     private Usuario.CategoriaUsuario categoria;
+    private Usuario.EstadoVerificacion verificacionFinanciera;
+    private Usuario.EstadoVerificacion verificacionJudicial;
+    private Integer calificacionRiesgo;
     private List<MedioPagoResponse> mediosPago;
 
     public static UsuarioResponse from(Usuario u) {
@@ -33,6 +36,10 @@ public class UsuarioResponse {
         r.setFotoDocumentoDorso(u.getFotoDocumentoDorso());
         r.setVerificado(u.getVerificado());
         r.setCategoria(u.getCategoria());
+        r.setCalificacionRiesgo(u.getCalificacionRiesgo());
+        r.setVerificacionFinanciera(u.getVerificacionFinanciera());
+        r.setVerificacionJudicial(u.getVerificacionJudicial());
+
 
         if (u.getMedioPagos() != null) {
             r.setMediosPago(u.getMedioPagos().stream()

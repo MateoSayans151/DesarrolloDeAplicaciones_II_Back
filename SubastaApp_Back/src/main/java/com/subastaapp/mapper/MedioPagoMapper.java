@@ -27,6 +27,7 @@ public class MedioPagoMapper {
             cb.setTitularCuenta(cbReq.getTitularCuenta());
             cb.setTipoCuenta(cbReq.getTipoCuenta());
             cb.setMoneda(cbReq.getMoneda());
+            cb.setCbuAlias(cbReq.getCbuAlias());
             cb.setUsuario(usuario);
             cb.setVerificado(MedioPago.EstadoVerificacion.no);
             return cb;

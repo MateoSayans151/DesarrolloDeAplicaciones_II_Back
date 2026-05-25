@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class UsuarioUpdateRequest {
     private String nombre;
-    private String direccion;
+    private String domicilio;
     private String fotoBase64;
 }

@@ -1,0 +1,5 @@
+### Eliminar medio de pago de un usuario
+DELETE http://localhost:8080/api/v1/usuarios/me/medios-pago/7
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1MjIxNTgzMyIsImlhdCI6MTc3OTY4NTUzOSwiZXhwIjoxNzc5NzcxOTM5fQ.m453_iNzhfaSI92MbMrinSjANi-w4bjlfm9NLhjHPG0
+###

@@ -31,6 +31,7 @@ public class Usuario {
     @Column(nullable = false)
     private String pais;
 
+    @Column(nullable = false)
     private String domicilio;
 
     @Column(nullable = false)
@@ -70,4 +71,5 @@ public class Usuario {
     public enum CategoriaUsuario {
         comun, especial, plata, oro, platino
     }
+
 }
