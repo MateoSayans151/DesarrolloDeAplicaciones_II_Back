@@ -39,11 +39,25 @@ public class ProductoService {
 
         Producto producto = new Producto();
         producto.setFecha(req.getFecha());
-        producto.setDisponible(req.getDisponible() != null ? req.getDisponible() : Producto.DisponibilidadProducto.si);
-        producto.setDescripcionCatalogo(req.getDescripcionCatalogo());
+        producto.setEstado(Producto.EstadoProducto.PENDIENTE);
         producto.setDescripcionCompleta(req.getDescripcionCompleta());
         producto.setPropietarioUsuario(propietario);
-        producto.setSeguro(req.getSeguro());
+        
+        // Seteo de seguros
+        producto.setPolizaSeguro(req.getPolizaSeguro());
+        producto.setAseguradora(req.getAseguradora());
+        producto.setMontoAsegurado(req.getMontoAsegurado());
+
+        // Seteo de metadata
+        producto.setArtista(req.getArtista());
+        producto.setDisenador(req.getDisenador());
+        producto.setHistoria(req.getHistoria());
+        producto.setUbicacionDeposito(req.getUbicacionDeposito());
+
+        // Seteo de declaraciones
+        producto.setOrigenLicitoDeclarado(req.getOrigenLicitoDeclarado() != null && req.getOrigenLicitoDeclarado());
+        producto.setPropietarioDeclarado(req.getPropietarioDeclarado() != null && req.getPropietarioDeclarado());
+
         Producto productoGuardado = productoRepository.save(producto);
 
         // Vincula automaticamente el producto al catalogo con valores por defecto
@@ -52,6 +66,7 @@ public class ProductoService {
         item.setProducto(productoGuardado);
         item.setPrecioBase(BigDecimal.ZERO);
         item.setComision(BigDecimal.ZERO);
+        item.setSubastado(ItemCatalogo.subastado_bool.no);
         itemCatalogoRepository.save(item);
 
         return ProductoResponse.from(productoGuardado);

@@ -4,7 +4,7 @@ import com.subastaapp.dto.request.CatalogoRequest;
 import com.subastaapp.dto.request.ItemCatalogoRequest;
 import com.subastaapp.dto.response.CatalogoDetalleResponse;
 import com.subastaapp.dto.response.CatalogoResponse;
-import com.subastaapp.dto.response.ItemCatalogoDetalleReponse;
+import com.subastaapp.dto.response.ItemCatalogoDetalleResponse;
 import com.subastaapp.dto.response.ItemCatalogoResponse;
 import com.subastaapp.exception.ConflictException;
 import com.subastaapp.exception.ResourceNotFoundException;
@@ -23,9 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -81,7 +79,7 @@ public class CatalogoService {
         detalle.setDescripcion(catalogo.getDescripcion());
         detalle.setSubasta(catalogo.getSubasta() != null ? catalogo.getSubasta().getId() : null);
 
-        List<ItemCatalogoDetalleReponse> itemsResponse = new ArrayList<>();
+        List<ItemCatalogoDetalleResponse> itemsResponse = new ArrayList<>();
 
         //obtener los itemscatalogo que referencian a este catalogo
         List<ItemCatalogo> items = itemCatalogoRepository.findByCatalogoId(catalogo.getId());
@@ -115,8 +113,10 @@ public class CatalogoService {
         ItemCatalogo item = new ItemCatalogo();
         item.setCatalogo(catalogo);
         item.setProducto(producto);
+        item.setDescripcionCatalogo(req.getDescripcionCatalogo());
         item.setPrecioBase(req.getPrecioBase());
         item.setComision(req.getComision());
+        item.setSubastado(ItemCatalogo.subastado_bool.no);
         return ItemCatalogoResponse.from(itemCatalogoRepository.save(item));
     }
 }

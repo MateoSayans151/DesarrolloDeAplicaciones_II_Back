@@ -25,6 +25,8 @@ public class ItemCatalogo {
     @JoinColumn(name = "producto_id", nullable = false)
     private Producto producto;
 
+    private String descripcionCatalogo;
+
     @Column(nullable = false, precision = 18, scale = 2)
     private BigDecimal precioBase;
 
