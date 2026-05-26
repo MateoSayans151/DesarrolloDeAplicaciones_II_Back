@@ -24,9 +24,9 @@ public class SubastaService {
     private final RegistroSubastaRepository registroSubastaRepository;
     private final CatalogoRepository catalogoRepository;
 
-    public SubastaResponse crear(SubastaRequest req) {
-        Usuario creador = usuarioRepository.findById(req.getCreadorUsuarioId())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario creador no encontrado"));
+    public SubastaResponse crear(SubastaRequest req, String documento) {
+        Usuario creador = usuarioRepository.findByDocumento(documento)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
         Subasta subasta = new Subasta();
         subasta.setFecha(req.getFecha());
         subasta.setHora(req.getHora());

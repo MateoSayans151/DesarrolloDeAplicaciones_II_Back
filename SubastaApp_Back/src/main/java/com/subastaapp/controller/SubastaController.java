@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.security.core.Authentication;
 import java.util.List;
 import java.util.Map;
 
@@ -25,8 +26,8 @@ public class SubastaController {
     private final AsistenteService asistenteService;
 
     @PostMapping
-    public ResponseEntity<SubastaResponse> crear(@Valid @RequestBody SubastaRequest req) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(subastaService.crear(req));
+    public ResponseEntity<SubastaResponse> crear(Authentication auth, @Valid @RequestBody SubastaRequest req) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(subastaService.crear(req, auth.getName()));
     }
 
     @GetMapping("/abiertas")

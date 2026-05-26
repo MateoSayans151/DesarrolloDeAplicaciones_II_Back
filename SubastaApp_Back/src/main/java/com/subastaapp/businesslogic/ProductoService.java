@@ -59,20 +59,35 @@ public class ProductoService {
         producto.setPropietarioDeclarado(req.getPropietarioDeclarado() != null && req.getPropietarioDeclarado());
 
         Producto productoGuardado = productoRepository.save(producto);
+// Vincula automaticamente el producto al catalogo con valores por defecto
+ItemCatalogo item = new ItemCatalogo();
+item.setCatalogo(catalogo);
+item.setProducto(productoGuardado);
+item.setPrecioBase(BigDecimal.ZERO);
+item.setComision(BigDecimal.ZERO);
+item.setSubastado(ItemCatalogo.subastado_bool.no);
+itemCatalogoRepository.save(item);
 
-        // Vincula automaticamente el producto al catalogo con valores por defecto
-        ItemCatalogo item = new ItemCatalogo();
-        item.setCatalogo(catalogo);
-        item.setProducto(productoGuardado);
-        item.setPrecioBase(BigDecimal.ZERO);
-        item.setComision(BigDecimal.ZERO);
-        item.setSubastado(ItemCatalogo.subastado_bool.no);
-        itemCatalogoRepository.save(item);
+return ProductoResponse.from(productoGuardado);
+}
 
-        return ProductoResponse.from(productoGuardado);
-    }
+@org.springframework.transaction.annotation.Transactional
+public void aprobarProducto(Long id) {
+Producto producto = productoRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
 
-    public void agregarFoto(Long productoId, FotoRequest req) {
+producto.setEstado(Producto.EstadoProducto.ACEPTADO);
+productoRepository.save(producto);
+
+// Simular tasación: Asignar un precio base aleatorio al item vinculado
+itemCatalogoRepository.findByProductoId(id).stream().findFirst().ifPresent(item -> {
+    double randomPrice = 1000 + (new java.util.Random().nextDouble() * 9000);
+    item.setPrecioBase(BigDecimal.valueOf(randomPrice).setScale(2, java.math.RoundingMode.HALF_UP));
+    itemCatalogoRepository.save(item);
+});
+}
+
+public void agregarFoto(Long productoId, FotoRequest req) {
         Producto producto = productoRepository.findById(productoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
         Foto foto = new Foto();

@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 public class ItemCatalogoRequest {
     @NotNull
     private Long producto;
-    private String descripcionCatalogo;
     @NotNull
     private BigDecimal precioBase;
     @NotNull

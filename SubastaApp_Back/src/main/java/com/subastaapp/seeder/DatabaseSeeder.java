@@ -92,7 +92,6 @@ public class DatabaseSeeder implements CommandLineRunner {
         ItemCatalogo item1 = new ItemCatalogo();
         item1.setCatalogo(catalogo);
         item1.setProducto(juegoTe);
-        item1.setDescripcionCatalogo("Juego de Té de 18 piezas");
         item1.setPrecioBase(new BigDecimal("150000.00"));
         item1.setComision(new BigDecimal("15000.00"));
         item1.setSubastado(ItemCatalogo.subastado_bool.no);
@@ -100,7 +99,6 @@ public class DatabaseSeeder implements CommandLineRunner {
         ItemCatalogo item2 = new ItemCatalogo();
         item2.setCatalogo(catalogo);
         item2.setProducto(cuadro);
-        item2.setDescripcionCatalogo("Óleo sobre lienzo original");
         item2.setPrecioBase(new BigDecimal("350000.00"));
         item2.setComision(new BigDecimal("35000.00"));
         item2.setSubastado(ItemCatalogo.subastado_bool.no);

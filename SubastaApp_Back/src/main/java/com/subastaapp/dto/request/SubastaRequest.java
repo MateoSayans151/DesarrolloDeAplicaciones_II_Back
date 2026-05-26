@@ -14,7 +14,6 @@ public class SubastaRequest {
     @NotNull
     private LocalTime hora;
     private Subasta.EstadoSubasta estado;
-    @NotNull
     private Long creadorUsuarioId;
     private String ubicacion;
     private Integer capacidadAsistentes;

@@ -13,7 +13,6 @@ public class CatalogoProductoMapper {
         r.setId(i.getId());
         r.setCatalogo(i.getCatalogo().getId());
         r.setComision(i.getComision());
-        r.setDescripcionCatalogo(i.getDescripcionCatalogo());
         if (auth_user) {
             r.setPrecioBase(i.getPrecioBase());
         }

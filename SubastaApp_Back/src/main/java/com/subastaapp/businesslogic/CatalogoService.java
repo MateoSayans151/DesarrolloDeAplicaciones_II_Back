@@ -113,7 +113,6 @@ public class CatalogoService {
         ItemCatalogo item = new ItemCatalogo();
         item.setCatalogo(catalogo);
         item.setProducto(producto);
-        item.setDescripcionCatalogo(req.getDescripcionCatalogo());
         item.setPrecioBase(req.getPrecioBase());
         item.setComision(req.getComision());
         item.setSubastado(ItemCatalogo.subastado_bool.no);

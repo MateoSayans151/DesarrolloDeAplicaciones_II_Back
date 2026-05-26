@@ -57,11 +57,4 @@ public class CatalogoController {
                                                              @Valid @RequestBody ItemCatalogoRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(catalogoService.agregarItem(id, req));
     }
-
-    @PostMapping("/{id}/productos")
-    public ResponseEntity<ProductoResponse> crearProducto(Authentication auth,
-                                                           @PathVariable Long id,
-                                                           @Valid @RequestBody ProductoRequest req) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(productoService.crearEnCatalogo(id, req, auth.getName()));
-    }
 }
