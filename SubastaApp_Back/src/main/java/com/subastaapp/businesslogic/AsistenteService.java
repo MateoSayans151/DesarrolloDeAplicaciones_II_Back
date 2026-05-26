@@ -4,6 +4,7 @@ import com.subastaapp.dto.request.AsistenteRequest;
 import com.subastaapp.dto.response.AsistenteResponse;
 import com.subastaapp.exception.ConflictException;
 import com.subastaapp.exception.ResourceNotFoundException;
+import java.util.List;
 import com.subastaapp.model.Asistente;
 import com.subastaapp.model.Subasta;
 import com.subastaapp.model.Usuario;
@@ -20,6 +21,14 @@ public class AsistenteService {
     private final AsistenteRepository asistenteRepository;
     private final SubastaRepository subastaRepository;
     private final UsuarioRepository usuarioRepository;
+
+    public List<AsistenteResponse> listarPorSubasta(Long subastaId) {
+        if (!subastaRepository.existsById(subastaId)) {
+            throw new ResourceNotFoundException("Subasta no encontrada");
+        }
+        return asistenteRepository.findBySubastaId(subastaId)
+                .stream().map(AsistenteResponse::from).toList();
+    }
 
     public AsistenteResponse registrar(Long subastaId, AsistenteRequest req) {
         Subasta subasta = subastaRepository.findById(subastaId)

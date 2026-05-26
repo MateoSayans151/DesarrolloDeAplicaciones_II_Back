@@ -29,6 +29,11 @@ public class SubastaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(subastaService.crear(req));
     }
 
+    @GetMapping
+    public ResponseEntity<List<SubastaResponse>> listarTodas() {
+        return ResponseEntity.ok(subastaService.listarTodas());
+    }
+
     @GetMapping("/abiertas")
     public ResponseEntity<List<SubastaResponse>> listarAbiertas() {
         return ResponseEntity.ok(subastaService.listarAbiertas());
@@ -56,6 +61,11 @@ public class SubastaController {
     public ResponseEntity<Void> cerrar(@PathVariable Long id) {
         subastaService.cerrar(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/asistentes")
+    public ResponseEntity<List<AsistenteResponse>> listarAsistentes(@PathVariable Long id) {
+        return ResponseEntity.ok(asistenteService.listarPorSubasta(id));
     }
 
     @GetMapping("/{id}/registro")

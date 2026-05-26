@@ -32,6 +32,16 @@ public class CatalogoService {
     private final ItemCatalogoRepository itemCatalogoRepository;
     private final ProductoRepository productoRepository;
 
+    public List<CatalogoResponse> listarTodos() {
+        return catalogoRepository.findAll()
+                .stream().map(CatalogoResponse::from).toList();
+    }
+
+    public ItemCatalogoResponse obtenerItem(Long itemId) {
+        return ItemCatalogoResponse.from(itemCatalogoRepository.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Item no encontrado")));
+    }
+
     public CatalogoResponse crear(CatalogoRequest req, String documento) {
         Usuario creador = usuarioRepository.findByDocumento(documento)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));

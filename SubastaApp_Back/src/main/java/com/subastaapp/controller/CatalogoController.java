@@ -26,6 +26,11 @@ public class CatalogoController {
     private final CatalogoService catalogoService;
     private final ProductoService productoService;
 
+    @GetMapping
+    public ResponseEntity<List<CatalogoResponse>> listarTodos() {
+        return ResponseEntity.ok(catalogoService.listarTodos());
+    }
+
     @PostMapping
     public ResponseEntity<CatalogoResponse> crear(Authentication auth, @Valid @RequestBody CatalogoRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(catalogoService.crear(req, auth.getName()));
