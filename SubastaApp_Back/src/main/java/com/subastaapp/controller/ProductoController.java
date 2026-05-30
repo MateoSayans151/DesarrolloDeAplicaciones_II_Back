@@ -1,5 +1,9 @@
 package com.subastaapp.controller;
 
+import com.subastaapp.dto.request.ProductoRequest;
+import com.subastaapp.dto.response.ProductoResponse;
+import org.springframework.security.core.Authentication;
+import jakarta.validation.Valid;
 import com.subastaapp.businesslogic.ProductoService;
 import com.subastaapp.dto.request.FotoRequest;
 import com.subastaapp.dto.response.ProductoResponse;

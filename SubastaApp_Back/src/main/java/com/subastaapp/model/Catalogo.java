@@ -19,8 +19,8 @@ public class Catalogo {
     @Column(nullable = false)
     private String descripcion;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subasta_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subasta_id", unique = true)
     private Subasta subasta;
 
     @ManyToOne(fetch = FetchType.LAZY)

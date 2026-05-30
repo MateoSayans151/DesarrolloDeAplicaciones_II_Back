@@ -1,0 +1,12 @@
+### Simulación de verificación administrativa. Necesario antes del paso final de registro
+POST http://localhost:8080/api/v1/usuarios/3/verificacion
+Content-Type: application/json
+
+{
+  "verificado": "si",
+  "verificacionFinanciera": "si",
+  "verificacionJudicial": "si",
+  "calificacionRiesgo": 5
+}
+
+###

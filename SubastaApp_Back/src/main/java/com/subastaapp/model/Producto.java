@@ -22,9 +22,8 @@ public class Producto {
     private LocalDate fecha;
 
     @Enumerated(EnumType.STRING)
-    private DisponibilidadProducto disponible = DisponibilidadProducto.si;
-
-    private String descripcionCatalogo;
+    @Column(nullable = false)
+    private EstadoProducto estado = EstadoProducto.PENDIENTE;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String descripcionCompleta;
@@ -33,12 +32,36 @@ public class Producto {
     @JoinColumn(name = "propietario_usuario_id", nullable = false)
     private Usuario propietarioUsuario;
 
-    private String seguro;
+    // Campos de Seguro mejorados según consigna
+    private String polizaSeguro;
+    private String aseguradora;
+    private java.math.BigDecimal montoAsegurado;
+
+    // Metadata del bien (UADE requirements)
+    private String artista;
+    private String disenador;
+    
+    @Column(columnDefinition = "TEXT")
+    private String historia;
+    
+    private String ubicacionDeposito;
+
+    // Declaraciones obligatorias
+    private Boolean origenLicitoDeclarado = false;
+    private Boolean propietarioDeclarado = false;
+
+    @Column(columnDefinition = "TEXT")
+    private String motivoRechazo;
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Foto> fotos;
 
-    public enum DisponibilidadProducto {
-        si, no
+    public enum EstadoProducto {
+        PENDIENTE,
+        ACEPTADO,
+        RECHAZADO,
+        DEVUELTO,
+        EN_SUBASTA,
+        VENDIDO
     }
 }

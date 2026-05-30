@@ -1,11 +1,10 @@
 package com.subastaapp.controller;
 
 import com.subastaapp.businesslogic.UsuarioService;
-import com.subastaapp.dto.request.LoginRequest;
-import com.subastaapp.dto.request.UsuarioRegistroRequest;
-import com.subastaapp.dto.request.UsuarioUpdateRequest;
-import com.subastaapp.dto.request.UsuarioVerificacionRequest;
+import com.subastaapp.dto.request.*;
+import com.subastaapp.dto.response.MedioPagoResponse;
 import com.subastaapp.dto.response.TokenResponse;
+import com.subastaapp.dto.response.UsuarioPublicoResponse;
 import com.subastaapp.dto.response.UsuarioResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +20,14 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
 
-    @PostMapping("/registro")
-    public ResponseEntity<UsuarioResponse> registrar(@Valid @RequestBody UsuarioRegistroRequest req) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.registrar(req));
+    @PostMapping("/registro-inicial")
+    public ResponseEntity<UsuarioResponse> registroInicial(@Valid @RequestBody UsuarioRegistroInicialRequest req) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.registroInicial(req));
+    }
+
+    @PostMapping("/registro-final")
+    public ResponseEntity<UsuarioResponse> registroFinal(@Valid @RequestBody UsuarioRegistroFinalRequest req, Authentication auth) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.registroFinal(req, auth.getName()));
     }
 
     @PostMapping("/login")
@@ -36,14 +40,14 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.obtenerPorDocumento(auth.getName()));
     }
 
-    @PutMapping("/me")
+    @PatchMapping("/me")
     public ResponseEntity<UsuarioResponse> actualizarPerfil(Authentication auth,
                                                              @Valid @RequestBody UsuarioUpdateRequest req) {
         return ResponseEntity.ok(usuarioService.actualizar(auth.getName(), req));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UsuarioResponse> obtenerPorId(@PathVariable Long id) {
+    @GetMapping("/{id}/perfil-publico")
+    public ResponseEntity<UsuarioPublicoResponse> obtenerPorId(@PathVariable Long id) {
         return ResponseEntity.ok(usuarioService.obtenerPorId(id));
     }
 
@@ -52,5 +56,16 @@ public class UsuarioController {
                                           @Valid @RequestBody UsuarioVerificacionRequest req) {
         usuarioService.verificar(id, req);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/me/medios-pago")
+    public ResponseEntity<MedioPagoResponse> agregarMedioPago(@Valid @RequestBody MedioPagoRequest req, Authentication auth) {
+        return ResponseEntity.ok(usuarioService.agregarMedioPago(req, auth.getName()));
+    }
+
+    @DeleteMapping("/me/medios-pago/{id_medioPago}")
+    public ResponseEntity<MedioPagoResponse> eliminarMedioPago(@PathVariable Long id_medioPago, Authentication auth) {
+        usuarioService.eliminarMedioPago(id_medioPago, auth.getName());
+        return ResponseEntity.noContent().build();
     }
 }

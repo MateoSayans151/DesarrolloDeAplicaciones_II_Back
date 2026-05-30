@@ -1,0 +1,18 @@
+### Primer paso de registro de usuario
+POST http://localhost:8080/api/v1/usuarios/registro-inicial
+Content-Type: application/json
+
+{
+  "documento": "52215833",
+  "nombre": "Luciano",
+  "apellido": "Cabral",
+  "pais": "Argentina",
+  "localidad": "Avellaneda",
+  "calle": "Av. Mitre",
+  "numeroCalle": "470",
+  "codigoPostal": "7084",
+  "fotoDocumentoFrente": "data:image/webp;base64,UklGRkJJAABXRUJQVlA4WAoAAAAIAAAADAIAXQEAVlA4IGJIAADQMAGdASoN",
+  "fotoDocumentoDorso": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4gIoSAIQAABtbnRyU"
+}
+
+###

@@ -8,7 +8,7 @@ import lombok.Data;
 @Entity
 @DiscriminatorValue("TARJETA_CREDITO")
 @Data
-public class TarjetaCredito extends MedioPago{
+public class TarjetaCredito extends MedioPago {
     private String numeroTarjeta;
     private String nombreTitular;
     private String fechaVencimiento;

@@ -2,18 +2,23 @@ package com.subastaapp.businesslogic;
 
 import com.subastaapp.config.JwtUtil;
 import com.subastaapp.dto.request.*;
+import com.subastaapp.dto.response.MedioPagoResponse;
 import com.subastaapp.dto.response.TokenResponse;
+import com.subastaapp.dto.response.UsuarioPublicoResponse;
 import com.subastaapp.dto.response.UsuarioResponse;
 import com.subastaapp.exception.ConflictException;
 import com.subastaapp.exception.ResourceNotFoundException;
 import com.subastaapp.exception.UnauthorizedException;
 import com.subastaapp.mapper.MedioPagoMapper;
 import com.subastaapp.model.*;
+import com.subastaapp.repository.MedioPagoRepository;
 import com.subastaapp.repository.UsuarioRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,47 +26,60 @@ import java.util.stream.Collectors;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final MedioPagoRepository medioPagoRepository;
     private final PasswordEncoder passwordEncoder;
     private final MedioPagoMapper medioPagoMapper;
     private final JwtUtil jwtUtil;
 
-    public UsuarioResponse registrar(UsuarioRegistroRequest req) {
-        if (usuarioRepository.existsByDocumento(req.getDocumento())) {
+    public UsuarioResponse registroInicial(UsuarioRegistroInicialRequest r){
+        if (usuarioRepository.existsByDocumento(r.getDocumento())) {
             throw new ConflictException("Ya existe un usuario con ese documento");
         }
         Usuario usuario = new Usuario();
-        usuario.setDocumento(req.getDocumento());
-        usuario.setNombre(req.getNombre());
-        usuario.setDomicilio(req.getDomicilio());
-        usuario.setApellido(req.getApellido());
-        usuario.setPais(req.getPais());
-        usuario.setPassword(passwordEncoder.encode(req.getPassword()));
-        usuario.setFotoDocumentoFrente(req.getFotoDocumentoFrente());
-        usuario.setFotoDocumentoDorso(req.getFotoDocumentoDorso());
-        if(req.getFotoPerfil() != null && !req.getFotoPerfil().isBlank()) {
-            usuario.setFotoBase64(req.getFotoPerfil());
-        }
-        else{
-            String defaultPfp = "https://ui-avatars.com/api/?name=" + req.getNombre() + "+" + req.getApellido() + "&background=random";
-            usuario.setFotoBase64(defaultPfp);
-        }
-
-        //Mappear los medios de pago dto a entidades
-        List<MedioPago> entidadesPago = req.getMedioPagos().stream()
-                .map(pagoReq -> medioPagoMapper.toEntity(pagoReq, usuario))
-                .collect(Collectors.toList());
-
-        usuario.setMedioPagos(entidadesPago);
+        usuario.setDocumento(r.getDocumento());
+        usuario.setNombre(r.getNombre());
+        usuario.setApellido(r.getApellido());
+        usuario.setPais(r.getPais());
+        usuario.setDomicilio(r.getLocalidad()+", "+r.getCalle()+", "+r.getNumeroCalle()+", "+r.getCodigoPostal());
+        usuario.setFotoDocumentoFrente(r.getFotoDocumentoFrente());
+        usuario.setFotoDocumentoDorso(r.getFotoDocumentoDorso());
+        String defaultPfp = "https://ui-avatars.com/api/?name=" + r.getNombre() + "+" + r.getApellido() + "&background=random";
+        usuario.setFotoBase64(defaultPfp);
+        //contraseña temporal hasta que la cambie en el registro final
+        usuario.setPassword(UUID.randomUUID().toString());
         usuario.setVerificado(Usuario.EstadoVerificacion.no);
 
         return UsuarioResponse.from(usuarioRepository.save(usuario));
     }
+
+    public UsuarioResponse registroFinal(UsuarioRegistroFinalRequest r, String documento){
+        Usuario usuario = usuarioRepository.findByDocumento(documento)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        if(usuario.getVerificado() == Usuario.EstadoVerificacion.no){
+            throw new UnauthorizedException("Aún no fuiste verificado");
+        }
+        if (usuario.getMedioPagos() != null && !usuario.getMedioPagos().isEmpty()) {
+            throw new ConflictException("Este usuario ya completó su registro final.");
+        }
+        usuario.setPassword(passwordEncoder.encode(r.getPassword()));
+        //Mappear los medios de pago dto a entidades
+        List<MedioPago> entidadesPago = r.getMedioPagos().stream()
+                .map(pagoReq -> medioPagoMapper.toEntity(pagoReq, usuario))
+                .collect(Collectors.toList());
+        usuario.setMedioPagos(entidadesPago);
+
+        return  UsuarioResponse.from(usuarioRepository.save(usuario));
+    }
+
 
     public TokenResponse login(LoginRequest req) {
         Usuario usuario = usuarioRepository.findByDocumento(req.getDocumento())
                 .orElseThrow(() -> new UnauthorizedException("Credenciales inválidas"));
         if (!passwordEncoder.matches(req.getPassword(), usuario.getPassword())) {
             throw new UnauthorizedException("Credenciales inválidas");
+        }
+        if(usuario.getVerificado() == Usuario.EstadoVerificacion.no){
+            throw new UnauthorizedException("Tu usuario aún no fue verificado");
         }
         return new TokenResponse(jwtUtil.generateToken(usuario.getDocumento()));
     }
@@ -71,8 +89,8 @@ public class UsuarioService {
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado")));
     }
 
-    public UsuarioResponse obtenerPorId(Long id) {
-        return UsuarioResponse.from(usuarioRepository.findById(id)
+    public UsuarioPublicoResponse obtenerPorId(Long id) {
+        return UsuarioPublicoResponse.from(usuarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado")));
     }
 
@@ -80,7 +98,7 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findByDocumento(documento)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
         if (req.getNombre() != null) usuario.setNombre(req.getNombre());
-        if (req.getDireccion() != null) usuario.setDomicilio(req.getDireccion());
+        if (req.getDomicilio() != null) usuario.setDomicilio(req.getDomicilio());
         if (req.getFotoBase64() != null) usuario.setFotoBase64(req.getFotoBase64());
         return UsuarioResponse.from(usuarioRepository.save(usuario));
     }
@@ -95,6 +113,14 @@ public class UsuarioService {
             usuario.setCalificacionRiesgo(req.getCalificacionRiesgo());
             usuario.setCategoria(calcularCategoria(req.getCalificacionRiesgo()));
         }
+
+        if (req.getVerificado() == Usuario.EstadoVerificacion.si) {
+            String tokenTemporal = jwtUtil.generateToken(usuario.getDocumento());
+            System.out.println("=====================================================");
+            System.out.println("EMAIL ENVIADO AL USUARIO: " + usuario.getNombre());
+            System.out.println("Link para completar registro: subastaapp://registro?token=" + tokenTemporal);
+            System.out.println("=====================================================");
+        }
         usuarioRepository.save(usuario);
     }
 
@@ -107,5 +133,24 @@ public class UsuarioService {
             case 6 -> Usuario.CategoriaUsuario.platino;
             default -> Usuario.CategoriaUsuario.comun;
         };
+    }
+
+    public MedioPagoResponse agregarMedioPago(MedioPagoRequest req, String documento) {
+        Usuario usuario = usuarioRepository.findByDocumento(documento)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        MedioPago mp = medioPagoMapper.toEntity(req, usuario);
+        mp = medioPagoRepository.save(mp);
+        return MedioPagoResponse.from(mp);
+    }
+
+    @Transactional
+    public void eliminarMedioPago(Long idMedioPago, String documento) {
+        MedioPago medioPago = medioPagoRepository.findById(idMedioPago)
+                .orElseThrow(() -> new ResourceNotFoundException("Medio de pago no encontrado"));
+
+        if (!medioPago.getUsuario().getDocumento().equals(documento)) {
+            throw new UnauthorizedException("No tenes permiso para eliminar este medio de pago.");
+        }
+        medioPagoRepository.delete(medioPago);
     }
 }

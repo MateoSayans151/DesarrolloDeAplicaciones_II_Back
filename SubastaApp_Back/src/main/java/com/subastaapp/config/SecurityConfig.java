@@ -32,7 +32,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/usuarios/registro", "/usuarios/login").permitAll()
+                .requestMatchers("/usuarios/registro", "/usuarios/login", "/usuarios/registro-inicial", "/usuarios/*/verificacion").permitAll()
                 .requestMatchers(HttpMethod.GET, "/subastas/abiertas", "/subastas/{id}").permitAll()
                 .requestMatchers(HttpMethod.GET, "/catalogos/publico/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/items/*/pujas").permitAll()

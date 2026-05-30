@@ -8,7 +8,7 @@ import lombok.Data;
 @Entity
 @DiscriminatorValue("CUENTA_BANCARIA")
 @Data
-public class CuentaBancaria extends MedioPago{
+public class CuentaBancaria extends MedioPago {
     private String titularCuenta;
     private String tipoCuenta;
     private String moneda;
