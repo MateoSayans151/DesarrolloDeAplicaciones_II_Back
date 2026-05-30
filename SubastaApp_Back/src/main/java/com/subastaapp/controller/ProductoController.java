@@ -6,10 +6,14 @@ import org.springframework.security.core.Authentication;
 import jakarta.validation.Valid;
 import com.subastaapp.businesslogic.ProductoService;
 import com.subastaapp.dto.request.FotoRequest;
+import com.subastaapp.dto.response.ProductoResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/productos")
@@ -18,17 +22,14 @@ public class ProductoController {
 
     private final ProductoService productoService;
 
-    @PostMapping("/catalogo/{id}")
-    public ResponseEntity<ProductoResponse> crearEnCatalogo(Authentication auth,
-                                                           @PathVariable Long id,
-                                                           @Valid @RequestBody ProductoRequest req) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(productoService.crearEnCatalogo(id, req, auth.getName()));
+    @GetMapping
+    public ResponseEntity<List<ProductoResponse>> listarTodos() {
+        return ResponseEntity.ok(productoService.listarTodos());
     }
 
-    @PatchMapping("/{id}/aprobar")
-    public ResponseEntity<Void> aprobar(@PathVariable Long id) {
-        productoService.aprobarProducto(id);
-        return ResponseEntity.ok().build();
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductoResponse> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(productoService.obtener(id));
     }
 
     @PostMapping("/{id}/fotos")

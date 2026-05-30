@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +29,16 @@ public class ProductoService {
     private final CatalogoRepository catalogoRepository;
     private final ItemCatalogoRepository itemCatalogoRepository;
     private final FotoRepository fotoRepository;
+
+    public List<ProductoResponse> listarTodos() {
+        return productoRepository.findAll()
+                .stream().map(ProductoResponse::from).toList();
+    }
+
+    public ProductoResponse obtener(Long id) {
+        return ProductoResponse.from(productoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado")));
+    }
 
     @org.springframework.transaction.annotation.Transactional
     public ProductoResponse crearEnCatalogo(Long catalogoId, ProductoRequest req, String documento) {

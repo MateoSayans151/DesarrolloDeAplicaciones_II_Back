@@ -1,7 +1,9 @@
 package com.subastaapp.controller;
 
+import com.subastaapp.businesslogic.CatalogoService;
 import com.subastaapp.businesslogic.PujaService;
 import com.subastaapp.dto.request.PujaRequest;
+import com.subastaapp.dto.response.ItemCatalogoResponse;
 import com.subastaapp.dto.response.PujaResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,12 @@ import java.util.List;
 public class PujaController {
 
     private final PujaService pujaService;
+    private final CatalogoService catalogoService;
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ItemCatalogoResponse> obtenerItem(@PathVariable Long id) {
+        return ResponseEntity.ok(catalogoService.obtenerItem(id));
+    }
 
     @PostMapping("/{id}/pujas")
     public ResponseEntity<PujaResponse> pujar(@PathVariable Long id,

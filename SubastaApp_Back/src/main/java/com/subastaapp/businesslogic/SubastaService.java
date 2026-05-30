@@ -40,6 +40,11 @@ public class SubastaService {
         return SubastaResponse.from(subastaRepository.save(subasta));
     }
 
+    public List<SubastaResponse> listarTodas() {
+        return subastaRepository.findAll()
+                .stream().map(SubastaResponse::from).toList();
+    }
+
     public List<SubastaResponse> listarAbiertas() {
         return subastaRepository.findByEstado(Subasta.EstadoSubasta.abierta)
                 .stream().map(SubastaResponse::from).toList();
