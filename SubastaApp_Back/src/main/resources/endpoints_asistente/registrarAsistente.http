@@ -1,10 +1,10 @@
 ### Request para registrate como asistente en una subasta. El id de la url es el de la subasta, el id del usuario va en el json
-POST localhost:8080/api/v1/subastas/2/asistentes
+POST localhost:8080/api/v1/subastas/1/asistentes
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0MTIzNDU2NyIsImlhdCI6MTc4MDIwNjE5OSwiZXhwIjoxNzgwMjkyNTk5fQ.r6tFWeEEjrLJur0CNlyNpKciSve6oDjhfh-Pz3jnRnQ
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1MjIxNTgzMyIsImlhdCI6MTc4MDI0OTQ4NSwiZXhwIjoxNzgwMzM1ODg1fQ.fNLklJlIgfMXbgIlHKOio4rhMpzAdc5lswoPI0KfR3A
 
 {
-  "numeroPostor": 1,
-  "usuarioId": 1
+  "numeroPostor": 5,
+  "usuarioId": 3
 }
 ###

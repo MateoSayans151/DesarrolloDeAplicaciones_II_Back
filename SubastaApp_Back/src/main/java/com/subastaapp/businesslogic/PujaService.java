@@ -83,7 +83,7 @@ public class PujaService {
         Puja pujaGuardada = pujaRepository.save(puja);
         PujaResponse response = PujaResponse.from(pujaGuardada);
 
-        messagingTemplate.convertAndSend("/topic/items" + itemId, response);
+        messagingTemplate.convertAndSend("/topic/items/" + itemId, response);
         return response;
     }
 
