@@ -34,9 +34,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (jwtUtil.isTokenValid(token)) {
                 String documento = jwtUtil.extractDocumento(token);
                 usuarioRepository.findByDocumento(documento).ifPresent(usuario -> {
-                    User userDetails = new User(documento, "", List.of());
+                    User userDetails = new User(documento, "", usuario.getAuthorities());
                     UsernamePasswordAuthenticationToken auth =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, List.of());
+                            new UsernamePasswordAuthenticationToken(userDetails, null, usuario.getAuthorities());
                     auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 });

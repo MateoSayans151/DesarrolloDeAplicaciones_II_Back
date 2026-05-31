@@ -9,7 +9,9 @@ import com.subastaapp.model.*;
 import com.subastaapp.repository.AsistenteRepository;
 import com.subastaapp.repository.ItemCatalogoRepository;
 import com.subastaapp.repository.PujaRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -24,7 +26,9 @@ public class PujaService {
     private final PujaRepository pujaRepository;
     private final AsistenteRepository asistenteRepository;
     private final ItemCatalogoRepository itemCatalogoRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
+    @Transactional
     public PujaResponse pujar(Long itemId, PujaRequest req) {
         ItemCatalogo item = itemCatalogoRepository.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException("Item no encontrado"));
@@ -75,7 +79,12 @@ public class PujaService {
         puja.setItem(item);
         puja.setImporte(req.getImporte());
         puja.setGanador(Puja.EstadoGanador.no);
-        return PujaResponse.from(pujaRepository.save(puja));
+
+        Puja pujaGuardada = pujaRepository.save(puja);
+        PujaResponse response = PujaResponse.from(pujaGuardada);
+
+        messagingTemplate.convertAndSend("/topic/items" + itemId, response);
+        return response;
     }
 
     public List<PujaResponse> historial(Long itemId) {

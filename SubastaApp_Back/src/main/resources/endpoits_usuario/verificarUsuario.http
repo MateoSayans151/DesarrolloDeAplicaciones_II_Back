@@ -1,6 +1,7 @@
 ### Simulación de verificación administrativa. Necesario antes del paso final de registro
-POST http://localhost:8080/api/v1/usuarios/3/verificacion
+POST http://localhost:8080/api/v1/usuarios/admin/1/verificacion
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMDAwMDAwMCIsImlhdCI6MTc4MDIwNjA5OCwiZXhwIjoxNzgwMjkyNDk4fQ.HWr4d-PpO3jFUb1bVuhPkPLR4hhQ7XwuPz4nHAP4K1c
 
 {
   "verificado": "si",

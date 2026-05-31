@@ -32,6 +32,9 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                    //ADMIN ROUTES
+                    .requestMatchers("/admin/**").hasRole("ADMIN")
+                 //PUBLIC ROUTES
                 .requestMatchers("/usuarios/registro", "/usuarios/login", "/usuarios/registro-inicial", "/usuarios/*/verificacion").permitAll()
                 .requestMatchers(HttpMethod.GET, "/subastas/abiertas", "/subastas/{id}").permitAll()
                 .requestMatchers(HttpMethod.GET, "/catalogos/publico/**").permitAll()
@@ -39,7 +42,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/subastas/*/registro").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-                    .requestMatchers("/admin/medios-pago/*/dar-de-alta", "/admin/medios-pago/*/dar-de-baja").permitAll()
+                    .requestMatchers("/ws-subastas/**").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

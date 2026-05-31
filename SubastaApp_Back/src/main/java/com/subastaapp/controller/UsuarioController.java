@@ -53,7 +53,7 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.obtenerPorId(id));
     }
 
-    @PostMapping("/{id}/verificacion")
+    @PostMapping("/admin/{id}/verificacion")
     public ResponseEntity<Void> verificar(@PathVariable Long id,
                                           @Valid @RequestBody UsuarioVerificacionRequest req) {
         usuarioService.verificar(id, req);
