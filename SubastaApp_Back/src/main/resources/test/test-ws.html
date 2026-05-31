@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Test WebSocket STOMP</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        body { font-family: monospace; background: #1e1e1e; color: #00ff00; padding: 20px; }
+        #log { background: #000; padding: 10px; height: 300px; overflow-y: scroll; border: 1px solid #333; }
+        .highlight { color: #ff00ff; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>Terminal de Subastas en Tiempo Real</h2>
+    <div id="log">Conectando...<br></div>
+
+    <script>
+        const logDiv = document.getElementById('log');
+        function log(msg) { logDiv.innerHTML += msg + '<br>'; logDiv.scrollTop = logDiv.scrollHeight; }
+
+        const socket = new SockJS('http://localhost:8080/api/v1/ws-subastas');
+        const stompClient = Stomp.over(socket);
+
+        stompClient.debug = null;
+
+        stompClient.connect({}, function (frame) {
+            log('Conexión STOMP exitosa: ' + frame);
+
+            const itemId = 1; // Vamos a escuchar el item 1
+
+            log(`Suscribiéndose al canal: <span class="highlight">/topic/items/${itemId}</span>`);
+            
+            stompClient.subscribe('/topic/items/' + itemId, function (mensaje) {
+                //Cada vez que el backend haga el .convertAndSend(), este bloque se ejecuta
+                const puja = JSON.parse(mensaje.body);
+                const texto = `[NUEVA PUJA] Asistente ${puja.asistente} ofertó $${puja.importe}`;
+                log(`<span style="color: #00ffff">${texto}</span>`);
+            });
+            
+        }, function (error) {
+            log('<span style="color: red">Error de conexión: ' + error + '</span>');
+        });
+    </script>
+</body>
+</html>
