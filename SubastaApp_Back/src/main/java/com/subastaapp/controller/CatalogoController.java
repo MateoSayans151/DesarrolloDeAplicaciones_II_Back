@@ -28,7 +28,7 @@ public class CatalogoController {
         return ResponseEntity.ok(catalogoService.listarTodos());
     }
 
-    @PostMapping
+    @PostMapping("/admin")
     public ResponseEntity<CatalogoResponse> crear(Authentication auth, @Valid @RequestBody CatalogoRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(catalogoService.crear(req, auth.getName()));
     }
@@ -57,7 +57,7 @@ public class CatalogoController {
     */
 
 
-    @PostMapping("/{id}/items")
+    @PostMapping("/admin/{id}/items")
     public ResponseEntity<ItemCatalogoResponse> agregarItem(@PathVariable Long id,
                                                              @Valid @RequestBody ItemCatalogoRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(catalogoService.agregarItem(id, req));

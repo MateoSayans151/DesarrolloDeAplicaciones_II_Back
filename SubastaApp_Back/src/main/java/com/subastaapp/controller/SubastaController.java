@@ -25,7 +25,7 @@ public class SubastaController {
     private final SubastaService subastaService;
     private final AsistenteService asistenteService;
 
-    @PostMapping
+    @PostMapping("/admin")
     public ResponseEntity<SubastaResponse> crear(Authentication auth, @Valid @RequestBody SubastaRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(subastaService.crear(req, auth.getName()));
     }
@@ -45,7 +45,7 @@ public class SubastaController {
         return ResponseEntity.ok(subastaService.obtener(id));
     }
 
-    @PatchMapping("/{id}/estado")
+    @PatchMapping("/admin/{id}/estado")
     public ResponseEntity<Void> cambiarEstado(@PathVariable Long id,
                                                @RequestBody Map<String, String> body) {
         subastaService.cambiarEstado(id, body.get("estado"));
@@ -54,11 +54,12 @@ public class SubastaController {
 
     @PostMapping("/{id}/asistentes")
     public ResponseEntity<AsistenteResponse> registrarAsistente(@PathVariable Long id,
-                                                                  @Valid @RequestBody AsistenteRequest req) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(asistenteService.registrar(id, req));
+                                                                  @Valid @RequestBody AsistenteRequest req,
+                                                                Authentication auth) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(asistenteService.registrar(id, req, auth.getName()));
     }
 
-    @PostMapping("/{id}/cerrar")
+    @PostMapping("/admin/{id}/cerrar")
     public ResponseEntity<Void> cerrar(@PathVariable Long id) {
         subastaService.cerrar(id);
         return ResponseEntity.ok().build();

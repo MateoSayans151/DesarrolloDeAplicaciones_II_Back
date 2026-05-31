@@ -1,11 +1,16 @@
 package com.subastaapp.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -13,7 +18,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Usuario {
+public class Usuario implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -64,12 +69,54 @@ public class Usuario {
     @Enumerated(EnumType.STRING)
     private CategoriaUsuario categoria;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private User_roles role = User_roles.USER;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+
     public enum EstadoVerificacion {
         si, no
     }
 
     public enum CategoriaUsuario {
         comun, especial, plata, oro, platino
+    }
+
+    public enum User_roles{
+        USER, ADMIN
+    }
+
+
+    //Métodos que no vamos a usar pero los necesito por la ifaz para el tema de los roles (Spring Security te hace implementar esa interfaz si o si)
+
+    @Override
+    public String getUsername() {
+        return "";
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return false;
     }
 
 }

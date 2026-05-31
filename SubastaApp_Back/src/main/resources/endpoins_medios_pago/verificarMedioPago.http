@@ -1,8 +1,9 @@
-### Endpoint para cambiar la verificación de un medio de pago, simula un empleado administrador de la empresa
-PATCH http://localhost:8080/api/v1/admin/medios-pago/3/dar-de-alta
-
+### Endpoint para cambiar la verificación de un medio de pago, simula un empleado administrador de la empresa. El token tiene que ser de un usuario con rol admin
+PATCH http://localhost:8080/api/v1/admin/medios-pago/2/dar-de-alta
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMDAwMDAwMCIsImlhdCI6MTc4MDIwMjcwNiwiZXhwIjoxNzgwMjg5MTA2fQ.jqZH93c6zkt9G_H5YVc7ufCWWZwx_-GD3lcqlHNl_2Q
 ###
 
-### Endpoint para dar de baja la verificación de un medio de pago, simula un empleado administrador de la empresa
-PATCH http://localhost:8080/api/v1/admin/medios-pago/1/dar-de-baja
+### Endpoint para dar de baja la verificación de un medio de pago, simula un empleado administrador de la empresa. El token tiene que ser de un usuario con rol admin
+PATCH http://localhost:8080/api/v1/admin/medios-pago/2/dar-de-baja
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMDAwMDAwMCIsImlhdCI6MTc4MDIwMjcwNiwiZXhwIjoxNzgwMjg5MTA2fQ.jqZH93c6zkt9G_H5YVc7ufCWWZwx_-GD3lcqlHNl_2Q
 ###
