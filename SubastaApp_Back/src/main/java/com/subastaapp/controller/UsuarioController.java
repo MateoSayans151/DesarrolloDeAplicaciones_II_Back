@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/usuarios")
 @RequiredArgsConstructor
@@ -56,6 +58,16 @@ public class UsuarioController {
                                           @Valid @RequestBody UsuarioVerificacionRequest req) {
         usuarioService.verificar(id, req);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/me/medios-pago")
+    public ResponseEntity<List<MedioPagoResponse>> obtenerMediosPago(Authentication auth) {
+        return ResponseEntity.ok(usuarioService.listarMediosPago(auth.getName()));
+    }
+
+    @GetMapping("/me/medios-pago/{id}")
+    public ResponseEntity<MedioPagoResponse> obtenerMedioPago(@PathVariable Long id, Authentication auth) {
+        return ResponseEntity.ok(usuarioService.getMedioPagoById(id, auth.getName()));
     }
 
     @PostMapping("/me/medios-pago")

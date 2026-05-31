@@ -17,6 +17,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -133,6 +135,29 @@ public class UsuarioService {
             case 6 -> Usuario.CategoriaUsuario.platino;
             default -> Usuario.CategoriaUsuario.comun;
         };
+    }
+
+    public MedioPagoResponse getMedioPagoById(Long id, String documento) {
+        Usuario usuario = usuarioRepository.findByDocumento(documento)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        MedioPago mp = medioPagoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe un medio de pago con ese ID"));
+        if (! mp.getUsuario().getId().equals(usuario.getId())){
+            throw new UnauthorizedException("Este medio de pago le pertenece a otra persona");
+        }
+
+        return MedioPagoResponse.from(mp);
+    }
+
+    public List<MedioPagoResponse> listarMediosPago(String documento) {
+        Usuario usuario = usuarioRepository.findByDocumento(documento)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        List<MedioPago> medios = usuario.getMedioPagos();
+        List<MedioPagoResponse> mediosPagoResponse = new ArrayList<>();
+        for (MedioPago medioPago : medios) {
+            mediosPagoResponse.add(MedioPagoResponse.from(medioPago));
+        }
+        return mediosPagoResponse;
     }
 
     public MedioPagoResponse agregarMedioPago(MedioPagoRequest req, String documento) {

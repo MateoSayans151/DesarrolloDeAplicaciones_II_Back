@@ -1,0 +1,8 @@
+### Endpoint para cambiar la verificación de un medio de pago, simula un empleado administrador de la empresa
+PATCH http://localhost:8080/api/v1/admin/medios-pago/3/dar-de-alta
+
+###
+
+### Endpoint para dar de baja la verificación de un medio de pago, simula un empleado administrador de la empresa
+PATCH http://localhost:8080/api/v1/admin/medios-pago/1/dar-de-baja
+###

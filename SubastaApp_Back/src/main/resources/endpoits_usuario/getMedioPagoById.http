@@ -1,0 +1,5 @@
+### GET request to example server
+GET http://localhost:8080/api/v1/usuarios/me/medios-pago/4
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0MDY3NTg0MiIsImlhdCI6MTc4MDE4MjQ5NSwiZXhwIjoxNzgwMjY4ODk1fQ.-TyxD9GCnLgrid6Vzi9mSWh8oI98wgt7BmVJstJnIho
+
+###
