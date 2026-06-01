@@ -1,0 +1,176 @@
+### VARIABLES GLOBALES
+@baseUrl = http://localhost:8080/api/v1
+@adminDoc = 00000000
+@adminPass = admin123
+
+############################################################
+### 1. LOGIN ADMINISTRADOR (Para obtener token de gestión)
+############################################################
+# @name adminLogin
+POST {{baseUrl}}/usuarios/login
+Content-Type: application/json
+
+{
+  "documento": "{{adminDoc}}",
+  "password": "{{adminPass}}"
+}
+
+### GUARDAR EL TOKEN DEL ADMIN ABAJO
+@adminToken = {{adminLogin.response.body.token}}
+
+
+############################################################
+### 2. REGISTRO INICIAL (Usuario nuevo)
+############################################################
+# @name registroInicial
+POST {{baseUrl}}/usuarios/registro-inicial
+Content-Type: application/json
+
+{
+  "documento": "99999999",
+  "nombre": "Prueba",
+  "apellido": "Flujo",
+  "pais": "Argentina",
+  "localidad": "CABA",
+  "calle": "Lima",
+  "numeroCalle": "757",
+  "codigoPostal": "1000",
+  "fotoDocumentoFrente": "base64_frente",
+  "fotoDocumentoDorso": "base64_dorso"
+}
+
+@userId = {{registroInicial.response.body.id}}
+
+
+############################################################
+### 3. VERIFICACIÓN DE USUARIO (Acción del Admin)
+############################################################
+# Requiere adminToken del paso 1
+POST {{baseUrl}}/usuarios/admin/{{userId}}/verificacion
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "verificado": "si",
+  "verificacionFinanciera": "si",
+  "verificacionJudicial": "si",
+  "calificacionRiesgo": 4
+}
+
+# NOTA: Mira la consola de Java, se imprimió un Token Temporal.
+# Cópialo y úsalo para el siguiente paso (Registro Final).
+
+
+############################################################
+### 4. REGISTRO FINAL (El usuario completa su perfil)
+############################################################
+# @name registroFinal
+# SUSTITUYE <TOKEN_TEMPORAL> por el que viste en la consola
+POST {{baseUrl}}/usuarios/registro-final
+Authorization: Bearer <TOKEN_TEMPORAL>
+Content-Type: application/json
+
+{
+  "password": "usuario123",
+  "medioPagos": [
+    {
+      "tipo": "TARJETA",
+      "numeroTarjeta": "1111-2222-3333-4444",
+      "nombreTitular": "Prueba Flujo",
+      "fechaVencimento": "12/28",
+      "cvv": "123"
+    }
+  ]
+}
+
+
+############################################################
+### 5. LOGIN USUARIO FINAL
+############################################################
+# @name userLogin
+POST {{baseUrl}}/usuarios/login
+Content-Type: application/json
+
+{
+  "documento": "99999999",
+  "password": "usuario123"
+}
+
+@userToken = {{userLogin.response.body.token}}
+
+
+############################################################
+### 6. CREAR SUBASTA (Acción del Admin)
+############################################################
+# @name crearSubasta
+POST {{baseUrl}}/subastas/admin
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "fecha": "2026-06-25",
+  "hora": "15:30:00",
+  "ubicacion": "Sede Central UADE",
+  "capacidadAsistentes": 50,
+  "categoria": "plata"
+}
+
+@subastaId = {{crearSubasta.response.body.id}}
+
+
+############################################################
+### 7. CREAR CATÁLOGO (Acción del Admin)
+############################################################
+# @name crearCatalogo
+POST {{baseUrl}}/catalogos/admin
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "descripcion": "Catálogo de Relojería Fina",
+  "subasta": {{subastaId}}
+}
+
+@catalogoId = {{crearCatalogo.response.body.id}}
+
+
+############################################################
+### 8. CREAR PRODUCTO (Acción del Usuario en su catálogo)
+############################################################
+# @name crearProducto
+POST {{baseUrl}}/productos/catalogo/{{catalogoId}}
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "fecha": "2026-05-18",
+  "descripcionCompleta": "Reloj de oro de colección, marca Omega.",
+  "artista": "Omega",
+  "polizaSeguro": "POL-8877",
+  "aseguradora": "La Caja",
+  "montoAsegurado": 5000,
+  "ubicacionDeposito": "Depósito A",
+  "origenLicitoDeclarado": true,
+  "propietarioDeclarado": true
+}
+
+@productoId = {{crearProducto.response.body.id}}
+
+
+############################################################
+### 9. APROBACIÓN MARTILLERO (Acción del Admin + Tasación)
+############################################################
+PATCH {{baseUrl}}/productos/admin/{{productoId}}/aprobar
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "precioBase": 1850.50
+}
+
+
+############################################################
+### 10. VERIFICAR DETALLE FINAL
+############################################################
+GET {{baseUrl}}/catalogos/{{subastaId}}/detalle
+Authorization: Bearer {{userToken}}

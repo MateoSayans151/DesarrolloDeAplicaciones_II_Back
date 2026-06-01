@@ -83,21 +83,20 @@ return ProductoResponse.from(productoGuardado);
 }
 
 @org.springframework.transaction.annotation.Transactional
-public void aprobarProducto(Long id) {
-Producto producto = productoRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
+public void aprobarProducto(Long id, java.math.BigDecimal precioBase) {
+    Producto producto = productoRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
 
-producto.setEstado(Producto.EstadoProducto.ACEPTADO);
-productoRepository.save(producto);
+    producto.setEstado(Producto.EstadoProducto.ACEPTADO);
+    productoRepository.save(producto);
 
-// Simular tasación: Asignar un precio base aleatorio al item vinculado
-itemCatalogoRepository.findByProductoId(id).stream().findFirst().ifPresent(item -> {
-    double randomPrice = 1000 + (new java.util.Random().nextDouble() * 9000);
-    item.setPrecioBase(BigDecimal.valueOf(randomPrice).setScale(2, java.math.RoundingMode.HALF_UP));
-    itemCatalogoRepository.save(item);
-});
+    // El administrador coloca el precio mínimo de puja (precio base)
+    itemCatalogoRepository.findByProductoId(id).stream().findFirst().ifPresent(item -> {
+        item.setPrecioBase(precioBase);
+        item.setSubastado(ItemCatalogo.subastado_bool.no);
+        itemCatalogoRepository.save(item);
+    });
 }
-
 public void agregarFoto(Long productoId, FotoRequest req) {
         Producto producto = productoRepository.findById(productoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
