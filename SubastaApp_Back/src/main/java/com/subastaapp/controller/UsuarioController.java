@@ -60,6 +60,11 @@ public class UsuarioController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/dev/token-registro/{documento}")
+    public ResponseEntity<TokenResponse> obtenerTokenRegistroDev(@PathVariable String documento) {
+        return ResponseEntity.ok(usuarioService.obtenerTokenRegistroDev(documento));
+    }
+
     @GetMapping("/me/medios-pago")
     public ResponseEntity<List<MedioPagoResponse>> obtenerMediosPago(Authentication auth) {
         return ResponseEntity.ok(usuarioService.listarMediosPago(auth.getName()));

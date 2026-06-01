@@ -35,7 +35,7 @@ public class SecurityConfig {
                     //ADMIN ROUTES
                     .requestMatchers("/admin/**").hasRole("ADMIN")
                  //PUBLIC ROUTES
-                .requestMatchers("/usuarios/registro", "/usuarios/login", "/usuarios/registro-inicial", "/usuarios/*/verificacion").permitAll()
+                .requestMatchers("/usuarios/registro", "/usuarios/login", "/usuarios/registro-inicial", "/usuarios/*/verificacion", "/usuarios/dev/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/subastas/abiertas", "/subastas/{id}").permitAll()
                 .requestMatchers(HttpMethod.GET, "/catalogos/publico/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/items/*/pujas").permitAll()
