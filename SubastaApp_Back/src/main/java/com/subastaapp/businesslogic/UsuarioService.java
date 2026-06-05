@@ -126,6 +126,17 @@ public class UsuarioService {
         usuarioRepository.save(usuario);
     }
 
+    public TokenResponse obtenerTokenRegistroDev(String documento){
+        Usuario usuario = usuarioRepository.findByDocumento(documento)
+                .orElseThrow(()-> new ResourceNotFoundException("Usuario no encontrado"));
+
+        if(usuario.getVerificado() != Usuario.EstadoVerificacion.si){
+            throw new UnauthorizedException("El usuario aún no fue verificado por un administrador");
+        }
+
+        return new TokenResponse(jwtUtil.generateToken(usuario.getDocumento()));
+    }
+
     private Usuario.CategoriaUsuario calcularCategoria(int calificacion) {
         return switch (calificacion) {
             case 1, 2 -> Usuario.CategoriaUsuario.comun;
