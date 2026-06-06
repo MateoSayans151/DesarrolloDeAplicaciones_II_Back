@@ -2,6 +2,7 @@ package com.subastaapp.businesslogic;
 
 import com.subastaapp.config.JwtUtil;
 import com.subastaapp.dto.request.*;
+import com.subastaapp.dto.response.EstadisticasUsuarioResponse;
 import com.subastaapp.dto.response.MedioPagoResponse;
 import com.subastaapp.dto.response.TokenResponse;
 import com.subastaapp.dto.response.UsuarioPublicoResponse;
@@ -12,6 +13,9 @@ import com.subastaapp.exception.UnauthorizedException;
 import com.subastaapp.mapper.MedioPagoMapper;
 import com.subastaapp.model.*;
 import com.subastaapp.repository.MedioPagoRepository;
+import com.subastaapp.repository.ProductoRepository;
+import com.subastaapp.repository.RegistroSubastaRepository;
+import com.subastaapp.repository.SubastaRepository;
 import com.subastaapp.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +33,9 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final MedioPagoRepository medioPagoRepository;
+    private final SubastaRepository subastaRepository;
+    private final ProductoRepository productoRepository;
+    private final RegistroSubastaRepository registroSubastaRepository;
     private final PasswordEncoder passwordEncoder;
     private final MedioPagoMapper medioPagoMapper;
     private final JwtUtil jwtUtil;
@@ -177,6 +184,20 @@ public class UsuarioService {
         MedioPago mp = medioPagoMapper.toEntity(req, usuario);
         mp = medioPagoRepository.save(mp);
         return MedioPagoResponse.from(mp);
+    }
+
+    public EstadisticasUsuarioResponse obtenerEstadisticas(Long id) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        EstadisticasUsuarioResponse stats = new EstadisticasUsuarioResponse();
+        stats.setUsuarioId(id);
+        stats.setCategoria(usuario.getCategoria() != null ? usuario.getCategoria().name() : null);
+        stats.setSubastasCreadas(subastaRepository.countByCreadorUsuarioId(id));
+        stats.setProductosSubidos(productoRepository.countByPropietarioUsuarioId(id));
+        stats.setProductosVendidos(registroSubastaRepository.countByPropietarioUsuarioId(id));
+        stats.setPujasGanadas(registroSubastaRepository.countByCompradorUsuarioId(id));
+        stats.setMontoTotalGastado(registroSubastaRepository.sumImporteByCompradorUsuarioId(id));
+        return stats;
     }
 
     @Transactional

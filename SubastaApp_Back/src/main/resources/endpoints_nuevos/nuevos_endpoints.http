@@ -1,0 +1,75 @@
+### VARIABLES
+@baseUrl = http://localhost:8080/api/v1
+@adminDoc = 00000000
+@adminPass = admin123
+
+### LOGIN ADMIN (ejecutar primero para obtener token)
+# @name adminLogin
+POST {{baseUrl}}/usuarios/login
+Content-Type: application/json
+
+{
+  "documento": "{{adminDoc}}",
+  "password": "{{adminPass}}"
+}
+
+@adminToken = {{adminLogin.response.body.token}}
+
+
+### LOGIN USUARIO (ejecutar para obtener token de usuario)
+# @name userLogin
+POST {{baseUrl}}/usuarios/login
+Content-Type: application/json
+
+{
+  "documento": "99999999",
+  "password": "usuario123"
+}
+
+@userToken = {{userLogin.response.body.token}}
+
+###############################################################
+### 1. SUBASTAS DE UN USUARIO EN PARTICULAR
+###    GET /usuarios/{id}/subastas
+###############################################################
+# Reemplazar {id} con el ID del usuario a consultar
+GET {{baseUrl}}/usuarios/1/subastas
+Authorization: Bearer {{userToken}}
+
+###############################################################
+### 2. PRODUCTOS DE UN USUARIO EN PARTICULAR
+###    GET /usuarios/{id}/productos
+###############################################################
+# Reemplazar {id} con el ID del usuario a consultar
+GET {{baseUrl}}/usuarios/1/productos
+Authorization: Bearer {{userToken}}
+
+###############################################################
+### 3. ESTADÍSTICAS DE UN USUARIO EN PARTICULAR
+###    GET /usuarios/{id}/estadisticas
+###    Retorna: subastas creadas, productos subidos,
+###             productos vendidos, pujas ganadas, monto gastado
+###############################################################
+GET {{baseUrl}}/usuarios/1/estadisticas
+Authorization: Bearer {{userToken}}
+
+###############################################################
+### 4A. ENVIAR NOTIFICACIÓN A UNA CATEGORÍA (solo ADMIN)
+###     POST /notificaciones/admin/categoria/{categoria}
+###     Categorías válidas: comun, especial, plata, oro, platino
+###############################################################
+POST {{baseUrl}}/notificaciones/admin/categoria/plata
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "titulo": "Nueva subasta disponible",
+  "mensaje": "Hay una nueva subasta de relojes de colección disponible para usuarios categoría plata."
+}
+
+###############################################################
+### 4B. VER MIS NOTIFICACIONES (usuario autenticado)
+###     GET /notificaciones/me
+###############################################################
+GET {{baseUrl}}/notificaciones/me
+Authorization: Bearer {{userToken}}

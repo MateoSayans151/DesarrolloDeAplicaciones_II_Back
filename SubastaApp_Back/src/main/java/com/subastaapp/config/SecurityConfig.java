@@ -34,6 +34,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     //ADMIN ROUTES
                     .requestMatchers("/admin/**").hasRole("ADMIN")
+                    .requestMatchers("/notificaciones/admin/**").hasRole("ADMIN")
                  //PUBLIC ROUTES
                 .requestMatchers("/usuarios/registro", "/usuarios/login", "/usuarios/registro-inicial", "/usuarios/*/verificacion", "/usuarios/dev/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/subastas/abiertas", "/subastas/{id}").permitAll()

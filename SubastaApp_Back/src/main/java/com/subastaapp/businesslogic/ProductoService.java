@@ -97,6 +97,14 @@ public void aprobarProducto(Long id, java.math.BigDecimal precioBase) {
         itemCatalogoRepository.save(item);
     });
 }
+public List<ProductoResponse> listarPorUsuario(Long usuarioId) {
+    if (!usuarioRepository.existsById(usuarioId)) {
+        throw new ResourceNotFoundException("Usuario no encontrado");
+    }
+    return productoRepository.findByPropietarioUsuarioId(usuarioId)
+            .stream().map(ProductoResponse::from).toList();
+}
+
 public void agregarFoto(Long productoId, FotoRequest req) {
         Producto producto = productoRepository.findById(productoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));

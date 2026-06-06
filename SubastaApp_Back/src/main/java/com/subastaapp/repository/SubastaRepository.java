@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface SubastaRepository extends JpaRepository<Subasta, Long> {
     List<Subasta> findByEstado(Subasta.EstadoSubasta estado);
+    List<Subasta> findByCreadorUsuarioId(Long usuarioId);
+    long countByCreadorUsuarioId(Long usuarioId);
 }

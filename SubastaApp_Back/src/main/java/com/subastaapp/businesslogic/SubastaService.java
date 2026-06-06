@@ -107,4 +107,12 @@ public class SubastaService {
         return registroSubastaRepository.findBySubastaId(id)
                 .stream().map(RegistroSubastaResponse::from).toList();
     }
+
+    public List<SubastaResponse> listarPorUsuario(Long usuarioId) {
+        if (!usuarioRepository.existsById(usuarioId)) {
+            throw new ResourceNotFoundException("Usuario no encontrado");
+        }
+        return subastaRepository.findByCreadorUsuarioId(usuarioId)
+                .stream().map(SubastaResponse::from).toList();
+    }
 }

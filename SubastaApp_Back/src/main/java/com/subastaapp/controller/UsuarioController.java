@@ -1,8 +1,13 @@
 package com.subastaapp.controller;
 
+import com.subastaapp.businesslogic.ProductoService;
+import com.subastaapp.businesslogic.SubastaService;
 import com.subastaapp.businesslogic.UsuarioService;
 import com.subastaapp.dto.request.*;
+import com.subastaapp.dto.response.EstadisticasUsuarioResponse;
 import com.subastaapp.dto.response.MedioPagoResponse;
+import com.subastaapp.dto.response.ProductoResponse;
+import com.subastaapp.dto.response.SubastaResponse;
 import com.subastaapp.dto.response.TokenResponse;
 import com.subastaapp.dto.response.UsuarioPublicoResponse;
 import com.subastaapp.dto.response.UsuarioResponse;
@@ -21,6 +26,8 @@ import java.util.List;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final SubastaService subastaService;
+    private final ProductoService productoService;
 
     @PostMapping("/registro-inicial")
     public ResponseEntity<UsuarioResponse> registroInicial(@Valid @RequestBody UsuarioRegistroInicialRequest req) {
@@ -84,5 +91,20 @@ public class UsuarioController {
     public ResponseEntity<MedioPagoResponse> eliminarMedioPago(@PathVariable Long id_medioPago, Authentication auth) {
         usuarioService.eliminarMedioPago(id_medioPago, auth.getName());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/subastas")
+    public ResponseEntity<List<SubastaResponse>> obtenerSubastasDeUsuario(@PathVariable Long id) {
+        return ResponseEntity.ok(subastaService.listarPorUsuario(id));
+    }
+
+    @GetMapping("/{id}/productos")
+    public ResponseEntity<List<ProductoResponse>> obtenerProductosDeUsuario(@PathVariable Long id) {
+        return ResponseEntity.ok(productoService.listarPorUsuario(id));
+    }
+
+    @GetMapping("/{id}/estadisticas")
+    public ResponseEntity<EstadisticasUsuarioResponse> obtenerEstadisticas(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioService.obtenerEstadisticas(id));
     }
 }
