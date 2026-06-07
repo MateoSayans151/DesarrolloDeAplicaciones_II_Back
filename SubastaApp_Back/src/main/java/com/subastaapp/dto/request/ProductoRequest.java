@@ -3,11 +3,9 @@ package com.subastaapp.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-import java.time.LocalDate;
-
 @Data
 public class ProductoRequest {
-    private LocalDate fecha;
+    private String fecha;
     @NotBlank
     private String descripcionCompleta;
     private Long propietarioUsuarioId;
@@ -16,6 +14,7 @@ public class ProductoRequest {
     private String polizaSeguro;
     private String aseguradora;
     private java.math.BigDecimal montoAsegurado;
+    private String monedaAsegurado;
 
     // Metadata del bien
     private String artista;

@@ -7,6 +7,7 @@ import com.subastaapp.dto.response.CatalogoResponse;
 import com.subastaapp.dto.response.ItemCatalogoDetalleResponse;
 import com.subastaapp.dto.response.ItemCatalogoResponse;
 import com.subastaapp.exception.ConflictException;
+import com.subastaapp.exception.ForbiddenException;
 import com.subastaapp.exception.ResourceNotFoundException;
 import com.subastaapp.mapper.CatalogoProductoMapper;
 import com.subastaapp.model.Catalogo;
@@ -17,6 +18,7 @@ import com.subastaapp.model.Usuario;
 import com.subastaapp.repository.CatalogoRepository;
 import com.subastaapp.repository.ItemCatalogoRepository;
 import com.subastaapp.repository.ProductoRepository;
+import com.subastaapp.repository.PujaRepository;
 import com.subastaapp.repository.SubastaRepository;
 import com.subastaapp.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class CatalogoService {
     private final ItemCatalogoRepository itemCatalogoRepository;
     private final ProductoRepository productoRepository;
     private final CatalogoProductoMapper catalogoProductoMapper;
+    private final PujaRepository pujaRepository;
 
     public List<CatalogoResponse> listarTodos() {
         return catalogoRepository.findAll()
@@ -112,13 +115,32 @@ public class CatalogoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Catalogo no encontrado para esta subasta"));
     }
 
+    public void removerItem(Long catalogoId, Long itemId) {
+        ItemCatalogo item = itemCatalogoRepository.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Item no encontrado"));
+        if (!item.getCatalogo().getId().equals(catalogoId)) {
+            throw new ForbiddenException("El item no pertenece a este catálogo");
+        }
+        Catalogo catalogo = item.getCatalogo();
+        if (catalogo.getSubasta() != null &&
+                Subasta.EstadoSubasta.abierta.equals(catalogo.getSubasta().getEstado())) {
+            throw new ConflictException("No se puede modificar el catálogo de una subasta abierta");
+        }
+        pujaRepository.deleteByItemId(itemId);
+        itemCatalogoRepository.delete(item);
+    }
+
     public ItemCatalogoResponse agregarItem(Long catalogoId, ItemCatalogoRequest req) {
         Catalogo catalogo = catalogoRepository.findById(catalogoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Catalogo no encontrado"));
+        if (catalogo.getSubasta() != null &&
+                Subasta.EstadoSubasta.abierta.equals(catalogo.getSubasta().getEstado())) {
+            throw new ConflictException("No se puede modificar el catálogo de una subasta abierta");
+        }
         Producto producto = productoRepository.findById(req.getProducto())
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
-        if (itemCatalogoRepository.existsByCatalogoIdAndProductoId(catalogoId, req.getProducto())) {
-            throw new ConflictException("El producto ya esta en este catalogo");
+        if (itemCatalogoRepository.existsByProductoId(req.getProducto())) {
+            throw new ConflictException("El producto ya está asignado a otra subasta");
         }
         ItemCatalogo item = new ItemCatalogo();
         item.setCatalogo(catalogo);

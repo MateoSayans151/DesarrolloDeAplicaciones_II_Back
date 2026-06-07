@@ -1,10 +1,13 @@
 package com.subastaapp.controller;
 
+import com.subastaapp.businesslogic.AsistenteService;
 import com.subastaapp.businesslogic.ProductoService;
+import com.subastaapp.businesslogic.PujaService;
 import com.subastaapp.businesslogic.SubastaService;
 import com.subastaapp.businesslogic.UsuarioService;
 import com.subastaapp.dto.request.*;
 import com.subastaapp.dto.response.EstadisticasUsuarioResponse;
+import com.subastaapp.dto.response.MiPujaResponse;
 import com.subastaapp.dto.response.MedioPagoResponse;
 import com.subastaapp.dto.response.ProductoResponse;
 import com.subastaapp.dto.response.SubastaResponse;
@@ -28,6 +31,8 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
     private final SubastaService subastaService;
     private final ProductoService productoService;
+    private final AsistenteService asistenteService;
+    private final PujaService pujaService;
 
     @PostMapping("/registro-inicial")
     public ResponseEntity<UsuarioResponse> registroInicial(@Valid @RequestBody UsuarioRegistroInicialRequest req) {
@@ -106,5 +111,15 @@ public class UsuarioController {
     @GetMapping("/{id}/estadisticas")
     public ResponseEntity<EstadisticasUsuarioResponse> obtenerEstadisticas(@PathVariable Long id) {
         return ResponseEntity.ok(usuarioService.obtenerEstadisticas(id));
+    }
+
+    @GetMapping("/{id}/asistencias")
+    public ResponseEntity<List<SubastaResponse>> obtenerAsistencias(@PathVariable Long id) {
+        return ResponseEntity.ok(asistenteService.listarSubastasPorUsuario(id));
+    }
+
+    @GetMapping("/{id}/pujas")
+    public ResponseEntity<List<MiPujaResponse>> obtenerMisPujas(@PathVariable Long id) {
+        return ResponseEntity.ok(pujaService.listarMisPujas(id));
     }
 }

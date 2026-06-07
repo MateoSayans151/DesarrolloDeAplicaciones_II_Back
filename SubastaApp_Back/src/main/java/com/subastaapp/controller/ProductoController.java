@@ -31,6 +31,12 @@ public class ProductoController {
         return ResponseEntity.ok(productoService.obtener(id));
     }
 
+    @PostMapping
+    public ResponseEntity<ProductoResponse> crear(Authentication auth,
+                                                  @Valid @RequestBody ProductoRequest req) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(productoService.crear(req, auth.getName()));
+    }
+
     @PostMapping("/catalogo/{id}")
     public ResponseEntity<ProductoResponse> crearEnCatalogo(Authentication auth,
                                                            @PathVariable Long id,
@@ -43,6 +49,12 @@ public class ProductoController {
                                         @Valid @RequestBody AprobacionProductoRequest req) {
         productoService.aprobarProducto(id, req.getPrecioBase());
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Long id, Authentication auth) {
+        productoService.eliminar(id, auth.getName());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/fotos")

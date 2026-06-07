@@ -3,16 +3,21 @@ package com.subastaapp.dto.response;
 import com.subastaapp.model.Producto;
 import lombok.Data;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Data
 public class ProductoResponse {
     private Long id;
     private String descripcionCompleta;
     private Long propietarioUsuarioId;
     private String estado;
+    private List<String> fotos;
     
     private String polizaSeguro;
     private String aseguradora;
     private java.math.BigDecimal montoAsegurado;
+    private String monedaAsegurado;
     
     private String artista;
     private String disenador;
@@ -33,6 +38,7 @@ public class ProductoResponse {
         r.setPolizaSeguro(p.getPolizaSeguro());
         r.setAseguradora(p.getAseguradora());
         r.setMontoAsegurado(p.getMontoAsegurado());
+        r.setMonedaAsegurado(p.getMonedaAsegurado());
         
         r.setArtista(p.getArtista());
         r.setDisenador(p.getDisenador());
@@ -42,7 +48,10 @@ public class ProductoResponse {
         r.setOrigenLicitoDeclarado(p.getOrigenLicitoDeclarado());
         r.setPropietarioDeclarado(p.getPropietarioDeclarado());
         r.setMotivoRechazo(p.getMotivoRechazo());
-        
+        if (p.getFotos() != null) {
+            r.setFotos(p.getFotos().stream().map(f -> f.getFotoBase64()).collect(Collectors.toList()));
+        }
+
         return r;
     }
 }

@@ -70,6 +70,12 @@ public class SubastaController {
         return ResponseEntity.ok(asistenteService.listarPorSubasta(id));
     }
 
+    @DeleteMapping("/admin/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Long id) {
+        subastaService.eliminar(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{id}/registro")
     public ResponseEntity<List<RegistroSubastaResponse>> obtenerRegistro(@PathVariable Long id) {
         return ResponseEntity.ok(subastaService.obtenerRegistro(id));

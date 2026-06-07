@@ -21,6 +21,7 @@ public class UsuarioResponse {
     private Usuario.EstadoVerificacion verificacionFinanciera;
     private Usuario.EstadoVerificacion verificacionJudicial;
     private Integer calificacionRiesgo;
+    private String role;
     private List<MedioPagoResponse> mediosPago;
 
     public static UsuarioResponse from(Usuario u) {
@@ -39,6 +40,7 @@ public class UsuarioResponse {
         r.setCalificacionRiesgo(u.getCalificacionRiesgo());
         r.setVerificacionFinanciera(u.getVerificacionFinanciera());
         r.setVerificacionJudicial(u.getVerificacionJudicial());
+        r.setRole(u.getRole() != null ? u.getRole().name() : "USER");
 
 
         if (u.getMedioPagos() != null) {

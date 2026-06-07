@@ -62,4 +62,10 @@ public class CatalogoController {
                                                              @Valid @RequestBody ItemCatalogoRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(catalogoService.agregarItem(id, req));
     }
+
+    @DeleteMapping("/admin/{catalogoId}/items/{itemId}")
+    public ResponseEntity<Void> removerItem(@PathVariable Long catalogoId, @PathVariable Long itemId) {
+        catalogoService.removerItem(catalogoId, itemId);
+        return ResponseEntity.noContent().build();
+    }
 }

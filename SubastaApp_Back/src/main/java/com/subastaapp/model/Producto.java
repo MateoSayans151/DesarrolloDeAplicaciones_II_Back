@@ -36,6 +36,7 @@ public class Producto {
     private String polizaSeguro;
     private String aseguradora;
     private java.math.BigDecimal montoAsegurado;
+    private String monedaAsegurado;
 
     // Metadata del bien (UADE requirements)
     private String artista;

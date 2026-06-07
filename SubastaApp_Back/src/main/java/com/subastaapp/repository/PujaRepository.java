@@ -15,4 +15,7 @@ public interface PujaRepository extends JpaRepository<Puja, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Puja> findTopByItemIdOrderByImporteDesc(Long itemId);
+
+    List<Puja> findByAsistenteUsuarioId(Long usuarioId);
+    void deleteByItemId(Long itemId);
 }

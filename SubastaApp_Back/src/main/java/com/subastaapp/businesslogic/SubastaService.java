@@ -7,6 +7,7 @@ import com.subastaapp.exception.ConflictException;
 import com.subastaapp.exception.ResourceNotFoundException;
 import com.subastaapp.model.*;
 import com.subastaapp.repository.*;
+import com.subastaapp.model.Asistente;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ public class SubastaService {
     private final PujaRepository pujaRepository;
     private final RegistroSubastaRepository registroSubastaRepository;
     private final CatalogoRepository catalogoRepository;
+    private final AsistenteRepository asistenteRepository;
 
     public SubastaResponse crear(SubastaRequest req, String documento) {
         Usuario creador = usuarioRepository.findByDocumento(documento)
@@ -106,6 +108,23 @@ public class SubastaService {
         }
         return registroSubastaRepository.findBySubastaId(id)
                 .stream().map(RegistroSubastaResponse::from).toList();
+    }
+
+    @Transactional
+    public void eliminar(Long id) {
+        Subasta subasta = subastaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Subasta no encontrada"));
+        catalogoRepository.findBySubastaId(id).ifPresent(catalogo -> {
+            List<ItemCatalogo> items = itemCatalogoRepository.findByCatalogoId(catalogo.getId());
+            for (ItemCatalogo item : items) {
+                pujaRepository.deleteByItemId(item.getId());
+            }
+            itemCatalogoRepository.deleteAll(items);
+            catalogoRepository.delete(catalogo);
+        });
+        asistenteRepository.deleteBySubastaId(id);
+        registroSubastaRepository.deleteBySubastaId(id);
+        subastaRepository.delete(subasta);
     }
 
     public List<SubastaResponse> listarPorUsuario(Long usuarioId) {

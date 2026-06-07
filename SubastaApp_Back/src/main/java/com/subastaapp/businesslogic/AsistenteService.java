@@ -2,6 +2,7 @@ package com.subastaapp.businesslogic;
 
 import com.subastaapp.dto.request.AsistenteRequest;
 import com.subastaapp.dto.response.AsistenteResponse;
+import com.subastaapp.dto.response.SubastaResponse;
 import com.subastaapp.exception.ConflictException;
 import com.subastaapp.exception.ForbiddenException;
 import com.subastaapp.exception.ResourceNotFoundException;
@@ -27,6 +28,14 @@ public class AsistenteService {
     private final AsistenteRepository asistenteRepository;
     private final SubastaRepository subastaRepository;
     private final UsuarioRepository usuarioRepository;
+
+    public List<SubastaResponse> listarSubastasPorUsuario(Long usuarioId) {
+        if (!usuarioRepository.existsById(usuarioId)) {
+            throw new ResourceNotFoundException("Usuario no encontrado");
+        }
+        return asistenteRepository.findByUsuarioId(usuarioId)
+                .stream().map(a -> SubastaResponse.from(a.getSubasta())).toList();
+    }
 
     public List<AsistenteResponse> listarPorSubasta(Long subastaId) {
         if (!subastaRepository.existsById(subastaId)) {

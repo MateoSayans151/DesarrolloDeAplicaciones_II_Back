@@ -1,6 +1,7 @@
 package com.subastaapp.businesslogic;
 
 import com.subastaapp.dto.request.PujaRequest;
+import com.subastaapp.dto.response.MiPujaResponse;
 import com.subastaapp.dto.response.PujaResponse;
 import com.subastaapp.exception.ConflictException;
 import com.subastaapp.exception.ForbiddenException;
@@ -85,6 +86,29 @@ public class PujaService {
 
         messagingTemplate.convertAndSend("/topic/items/" + itemId, response);
         return response;
+    }
+
+    public List<MiPujaResponse> listarMisPujas(Long usuarioId) {
+        return pujaRepository.findByAsistenteUsuarioId(usuarioId).stream().map(p -> {
+            BigDecimal mejorImporte = pujaRepository
+                    .findTopByItemIdOrderByImporteDesc(p.getItem().getId())
+                    .map(Puja::getImporte).orElse(p.getImporte());
+            MiPujaResponse r = new MiPujaResponse();
+            r.setPujaId(p.getId());
+            r.setImporte(p.getImporte());
+            r.setMejorImporte(mejorImporte);
+            r.setEsMejorPuja(p.getImporte().compareTo(mejorImporte) == 0);
+            r.setItemId(p.getItem().getId());
+            r.setPrecioBase(p.getItem().getPrecioBase());
+            r.setProductoDescripcion(p.getItem().getProducto().getDescripcionCompleta());
+            Subasta subasta = p.getItem().getCatalogo().getSubasta();
+            if (subasta != null) {
+                r.setSubastaId(subasta.getId());
+                r.setSubastaFecha(subasta.getFecha());
+                r.setSubastaEstado(subasta.getEstado().name());
+            }
+            return r;
+        }).toList();
     }
 
     public List<PujaResponse> historial(Long itemId) {
