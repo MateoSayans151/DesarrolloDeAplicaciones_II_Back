@@ -37,6 +37,6 @@ public class RegistroSubasta {
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal importe;
 
-    @Column(nullable = false, precision = 5, scale = 2)
+    @Column(nullable = false, precision = 18, scale = 2)
     private BigDecimal comision;
 }

@@ -21,91 +21,180 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final SubastaRepository subastaRepository;
     private final CatalogoRepository catalogoRepository;
     private final ItemCatalogoRepository itemCatalogoRepository;
+    private final AsistenteRepository asistenteRepository;
+    private final PujaRepository pujaRepository;
+    private final RegistroSubastaRepository registroSubastaRepository;
 
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        if (usuarioRepository.count() > 0) {
+        // Si ya hay productos, asumimos que la DB ya se pobló para no duplicar datos
+        if (productoRepository.count() > 0) {
+            System.out.println("La base de datos ya contiene registros. Se omite el Seeder.");
             return;
         }
 
-        // Crear usuario por defecto ya que la DB está vacía (especialmente en H2)
-        Usuario lucas = new Usuario();
-        lucas.setDocumento("12345678");
-        lucas.setNombre("Lucas");
-        lucas.setApellido("UADE");
-        lucas.setPais("Argentina");
-        lucas.setDomicilio("Lima 757, CABA");
-        lucas.setPassword("$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.TVuHOnu"); // "admin" en BCrypt
-        lucas.setVerificado(Usuario.EstadoVerificacion.si);
-        lucas.setFotoDocumentoFrente("pfp_frente");
-        lucas.setFotoDocumentoDorso("pfp_dorso");
-        lucas.setCalificacionRiesgo(1);
-        lucas.setCategoria(Usuario.CategoriaUsuario.comun);
-        
-        lucas = usuarioRepository.save(lucas);
+        System.out.println("Iniciando carga de datos de prueba...");
 
-        Producto juegoTe = new Producto();
-        juegoTe.setFecha(LocalDate.now());
-        juegoTe.setEstado(Producto.EstadoProducto.ACEPTADO);
-        juegoTe.setDescripcionCompleta("Juego de Té de 18 piezas de porcelana inglesa del siglo XIX en perfecto estado de conservación.");
-        juegoTe.setPropietarioUsuario(lucas);
-        juegoTe.setPolizaSeguro("POLIZA-12345");
-        juegoTe.setAseguradora("La Holando Sudamericana");
-        juegoTe.setMontoAsegurado(new BigDecimal("150000.00"));
-        juegoTe.setOrigenLicitoDeclarado(true);
-        juegoTe.setPropietarioDeclarado(true);
+        // 1. OBTENER USUARIOS EXISTENTES
+        List<Usuario> admins = usuarioRepository.findAll().stream()
+                .filter(u -> u.getRole() == Usuario.User_roles.ADMIN)
+                .toList();
+        List<Usuario> users = usuarioRepository.findAll().stream()
+                .filter(u -> u.getRole() == Usuario.User_roles.USER)
+                .toList();
+
+        if (admins.isEmpty() || users.isEmpty()) {
+            System.out.println("ADVERTENCIA: No hay suficientes usuarios en la tabla para poblar la DB. Registra un admin y un usuario primero.");
+            return;
+        }
+
+        Usuario admin = admins.get(0);
+        Usuario postor1 = users.get(0);
+
+        // Elevamos la categoría del postor1 a Platino para que no rebote por validaciones de categoría al testear
+        postor1.setCategoria(Usuario.CategoriaUsuario.platino);
+        postor1.setVerificado(Usuario.EstadoVerificacion.si);
+        usuarioRepository.save(postor1);
+
+        Usuario postor2 = users.size() > 1 ? users.get(1) : postor1;
+
+
+        // 2. CREAR PRODUCTOS
+        Producto reloj = new Producto();
+        reloj.setFecha(LocalDate.now().minusDays(10));
+        reloj.setEstado(Producto.EstadoProducto.ACEPTADO);
+        reloj.setDescripcionCompleta("Reloj Rolex Submariner Edición Limitada. Acero inoxidable y oro.");
+        reloj.setPropietarioUsuario(postor2);
+        reloj.setPolizaSeguro("POL-RLX-9988");
+        reloj.setAseguradora("Zurich Seguros");
+        reloj.setMontoAsegurado(new BigDecimal("12000.00"));
+        reloj.setOrigenLicitoDeclarado(true);
+        reloj.setPropietarioDeclarado(true);
 
         Producto cuadro = new Producto();
-        cuadro.setFecha(LocalDate.now());
+        cuadro.setFecha(LocalDate.now().minusDays(5));
         cuadro.setEstado(Producto.EstadoProducto.ACEPTADO);
-        cuadro.setDescripcionCompleta("Pintura al óleo original, firmada por el autor con marco de roble macizo restaurado.");
-        cuadro.setPropietarioUsuario(lucas);
-        cuadro.setPolizaSeguro("POLIZA-67890");
+        cuadro.setDescripcionCompleta("Cuadro original de Benito Quinquela Martín - 'Día de Trabajo'.");
+        cuadro.setPropietarioUsuario(admin);
+        cuadro.setPolizaSeguro("POL-ART-1122");
         cuadro.setAseguradora("Allianz");
-        cuadro.setMontoAsegurado(new BigDecimal("350000.00"));
+        cuadro.setMontoAsegurado(new BigDecimal("45000.00"));
+        cuadro.setArtista("Benito Quinquela Martín");
         cuadro.setOrigenLicitoDeclarado(true);
         cuadro.setPropietarioDeclarado(true);
 
-        productoRepository.saveAll(List.of(juegoTe, cuadro));
+        Producto jarron = new Producto();
+        jarron.setFecha(LocalDate.now().minusDays(2));
+        jarron.setEstado(Producto.EstadoProducto.ACEPTADO);
+        jarron.setDescripcionCompleta("Jarrón de porcelana fina, Dinastía Ming. Siglo XV.");
+        jarron.setPropietarioUsuario(postor2);
+        jarron.setPolizaSeguro("POL-MNG-5544");
+        jarron.setAseguradora("La Caja");
+        jarron.setMontoAsegurado(new BigDecimal("80000.00"));
+        jarron.setOrigenLicitoDeclarado(true);
+        jarron.setPropietarioDeclarado(true);
 
-        Subasta subasta = new Subasta();
-        subasta.setFecha(LocalDate.now().plusDays(15));
-        subasta.setHora(LocalTime.of(18, 0));
-        subasta.setEstado(Subasta.EstadoSubasta.abierta);
-        subasta.setCreadorUsuario(lucas);
-        subasta.setUbicacion("Salón Central, Av. Libertador 1234, CABA");
-        subasta.setCapacidadAsistentes(150);
-        subasta.setTieneDeposito(Subasta.OpcionSiNo.si);
-        subasta.setSeguridadPropia(Subasta.OpcionSiNo.si);
-        subasta.setCategoria(Subasta.CategoriaSubasta.plata);
+        productoRepository.saveAll(List.of(reloj, cuadro, jarron));
 
-        subasta = subastaRepository.save(subasta);
 
-        Catalogo catalogo = new Catalogo();
-        catalogo.setDescripcion("Catálogo de Arte y Antigüedades de la temporada de Otoño");
-        catalogo.setSubasta(subasta);
-        catalogo.setCreadorUsuario(lucas);
+        // ====================================================================
+        // ESCENARIO 1: SUBASTA FINALIZADA (Para probar historial y métricas)
+        // ====================================================================
 
-        catalogo = catalogoRepository.save(catalogo);
+        Subasta subastaFin = new Subasta();
+        subastaFin.setFecha(LocalDate.now().minusDays(3));
+        subastaFin.setHora(LocalTime.of(10, 0));
+        subastaFin.setEstado(Subasta.EstadoSubasta.cerrada);
+        subastaFin.setCreadorUsuario(admin);
+        subastaFin.setUbicacion("Sede Central UADE - Subasta Pasada");
+        subastaFin.setCapacidadAsistentes(100);
+        subastaFin.setTieneDeposito(Subasta.OpcionSiNo.si);
+        subastaFin.setSeguridadPropia(Subasta.OpcionSiNo.si);
+        subastaFin.setCategoria(Subasta.CategoriaSubasta.oro);
+        subastaFin = subastaRepository.save(subastaFin);
 
-        ItemCatalogo item1 = new ItemCatalogo();
-        item1.setCatalogo(catalogo);
-        item1.setProducto(juegoTe);
-        item1.setPrecioBase(new BigDecimal("150000.00"));
-        item1.setComision(new BigDecimal("15000.00"));
-        item1.setSubastado(ItemCatalogo.subastado_bool.no);
+        Catalogo catFin = new Catalogo();
+        catFin.setDescripcion("Catálogo de Relojería Antigua");
+        catFin.setSubasta(subastaFin);
+        catFin.setCreadorUsuario(admin);
+        catFin = catalogoRepository.save(catFin);
 
-        ItemCatalogo item2 = new ItemCatalogo();
-        item2.setCatalogo(catalogo);
-        item2.setProducto(cuadro);
-        item2.setPrecioBase(new BigDecimal("350000.00"));
-        item2.setComision(new BigDecimal("35000.00"));
-        item2.setSubastado(ItemCatalogo.subastado_bool.no);
+        ItemCatalogo itemReloj = new ItemCatalogo();
+        itemReloj.setCatalogo(catFin);
+        itemReloj.setProducto(reloj);
+        itemReloj.setPrecioBase(new BigDecimal("10000.00"));
+        itemReloj.setComision(new BigDecimal("1000.00"));
+        itemReloj.setSubastado(ItemCatalogo.subastado_bool.si); // Ya subastado
+        itemReloj = itemCatalogoRepository.save(itemReloj);
 
-        itemCatalogoRepository.saveAll(List.of(item1, item2));
+        // Registrar asistentes
+        Asistente asis1 = new Asistente(null, 1, postor1, subastaFin);
+        Asistente asis2 = new Asistente(null, 2, postor2, subastaFin);
+        asistenteRepository.saveAll(List.of(asis1, asis2));
 
-        System.out.println("db populada");
+        // Generar Pujas
+        Puja puja1 = new Puja(null, asis1, itemReloj, new BigDecimal("10500.00"), Puja.EstadoGanador.no);
+        Puja puja2 = new Puja(null, asis2, itemReloj, new BigDecimal("11000.00"), Puja.EstadoGanador.si); // Ganadora
+        pujaRepository.saveAll(List.of(puja1, puja2));
+
+        // Generar Registro de Venta Oficial
+        RegistroSubasta registroVenta = new RegistroSubasta();
+        registroVenta.setSubasta(subastaFin);
+        registroVenta.setPropietarioUsuario(reloj.getPropietarioUsuario());
+        registroVenta.setProducto(reloj);
+        registroVenta.setCompradorUsuario(postor2);
+        registroVenta.setImporte(puja2.getImporte());
+        registroVenta.setComision(itemReloj.getComision());
+        registroSubastaRepository.save(registroVenta);
+
+
+        // ====================================================================
+        // ESCENARIO 2: SUBASTA LISTA PARA TESTEAR (Para probar el Timer y WS)
+        // ====================================================================
+
+        Subasta subastaNueva = new Subasta();
+        subastaNueva.setFecha(LocalDate.now().plusDays(1));
+        subastaNueva.setHora(LocalTime.of(20, 0));
+        subastaNueva.setEstado(Subasta.EstadoSubasta.cerrada); // Dejar cerrada para abrirla manual
+        subastaNueva.setCreadorUsuario(admin);
+        subastaNueva.setUbicacion("Virtual / Streaming");
+        subastaNueva.setCapacidadAsistentes(500);
+        subastaNueva.setTieneDeposito(Subasta.OpcionSiNo.no);
+        subastaNueva.setSeguridadPropia(Subasta.OpcionSiNo.si);
+        subastaNueva.setCategoria(Subasta.CategoriaSubasta.platino);
+        subastaNueva = subastaRepository.save(subastaNueva);
+
+        Catalogo catNuevo = new Catalogo();
+        catNuevo.setDescripcion("Catálogo Gran Subasta de Arte y Antigüedades");
+        catNuevo.setSubasta(subastaNueva);
+        catNuevo.setCreadorUsuario(admin);
+        catNuevo = catalogoRepository.save(catNuevo);
+
+        ItemCatalogo itemCuadro = new ItemCatalogo();
+        itemCuadro.setCatalogo(catNuevo);
+        itemCuadro.setProducto(cuadro);
+        itemCuadro.setPrecioBase(new BigDecimal("50000.00")); // Tasado por el admin
+        itemCuadro.setComision(new BigDecimal("5000.00"));
+        itemCuadro.setSubastado(ItemCatalogo.subastado_bool.no); // Aún no subastado
+
+        ItemCatalogo itemJarron = new ItemCatalogo();
+        itemJarron.setCatalogo(catNuevo);
+        itemJarron.setProducto(jarron);
+        itemJarron.setPrecioBase(new BigDecimal("85000.00"));
+        itemJarron.setComision(new BigDecimal("8500.00"));
+        itemJarron.setSubastado(ItemCatalogo.subastado_bool.no); // Aún no subastado
+
+        itemCatalogoRepository.saveAll(List.of(itemCuadro, itemJarron));
+
+        // Dejamos al postor1 registrado como asistente para que pueda pujar ni bien empiece
+        Asistente asisNuevaSubasta = new Asistente(null, 25, postor1, subastaNueva);
+        asistenteRepository.save(asisNuevaSubasta);
+
+        System.out.println("==========================================================");
+        System.out.println("DB Poblada exitosamente.");
+        System.out.println("Subasta Activa ID: " + subastaNueva.getId() + " lista para abrir.");
+        System.out.println("Items a rematar ID: " + itemCuadro.getId() + " y " + itemJarron.getId());
+        System.out.println("==========================================================");
     }
 }
-

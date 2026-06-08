@@ -50,6 +50,9 @@ public class Subasta {
     @Column(nullable = false)
     private CategoriaSubasta categoria;
 
+    @Column(name = "item_activo_id")
+    private Integer itemActivoId;
+
     public enum EstadoSubasta {
         abierta, cerrada
     }

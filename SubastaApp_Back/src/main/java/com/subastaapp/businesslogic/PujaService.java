@@ -47,6 +47,10 @@ public class PujaService {
             throw new ConflictException("La subasta no esta abierta para pujas");
         }
 
+        if (subastaItem.getItemActivoId() == null || !subastaItem.getItemActivoId().equals(itemId)) {
+            throw new ConflictException("El articulo por el que queres pujar no se está subastando actualmente");
+        }
+
         BigDecimal precioBase = item.getPrecioBase();
         Optional<Puja> mejorPujaOpt = pujaRepository.findTopByItemIdOrderByImporteDesc(itemId);
 

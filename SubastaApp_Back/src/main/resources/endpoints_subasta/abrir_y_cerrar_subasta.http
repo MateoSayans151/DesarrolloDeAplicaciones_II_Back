@@ -1,0 +1,19 @@
+### Request para abrir subasta (necesitas ser admin)
+PATCH localhost:8080/api/v1/subastas/admin/10/estado
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMDAwMDAwMCIsImlhdCI6MTc4MDg4MzI0MCwiZXhwIjoxNzgwOTY5NjQwfQ.ihuRXra_8penPFW_BpfOOtFx4-DKahB_O-N61FZckRg
+
+{
+  "estado": "abierta"
+}
+###
+
+### Request para abrir subasta (necesitas ser admin)
+PATCH localhost:8080/api/v1/subastas/admin/10/estado
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMDAwMDAwMCIsImlhdCI6MTc4MDg4MzI0MCwiZXhwIjoxNzgwOTY5NjQwfQ.ihuRXra_8penPFW_BpfOOtFx4-DKahB_O-N61FZckRg
+
+{
+  "estado": "cerrada"
+}
+###
