@@ -53,6 +53,9 @@ public class Subasta {
     @Column(name = "item_activo_id")
     private Integer itemActivoId;
 
+    @Column(name = "item_activo_desde")
+    private Long itemActivoDesde;
+
     @Column(name = "tiempo_item_segundos")
     private Integer tiempoItemSegundos;
 

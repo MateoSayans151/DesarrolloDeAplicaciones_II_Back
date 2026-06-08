@@ -153,6 +153,7 @@ public class SubastaService {
 
                     if (nuevoItem != null) {
                         subasta.setItemActivoId(Math.toIntExact(nuevoItem.getId()));
+                        subasta.setItemActivoDesde(System.currentTimeMillis());
                         subastaRepository.save(subasta);
 
                         System.out.println("\n----------------------------------------------------------");
@@ -170,6 +171,7 @@ public class SubastaService {
                 } else {
                     // 3. Ya no hay más items
                     subasta.setItemActivoId(null);
+                    subasta.setItemActivoDesde(null);
                     subasta.setEstado(Subasta.EstadoSubasta.cerrada);
                     subastaRepository.save(subasta);
                     System.out.println("==========================================================");

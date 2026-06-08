@@ -17,6 +17,7 @@ public class SubastaResponse {
     private String ubicacion;
     private Integer capacidadAsistentes;
     private Integer itemActivoId;
+    private Long itemActivoDesde;
     private Integer tiempoItemSegundos;
 
     public static SubastaResponse from(Subasta s) {
@@ -30,6 +31,7 @@ public class SubastaResponse {
         r.setUbicacion(s.getUbicacion());
         r.setCapacidadAsistentes(s.getCapacidadAsistentes());
         r.setItemActivoId(s.getItemActivoId());
+        r.setItemActivoDesde(s.getItemActivoDesde());
         r.setTiempoItemSegundos(s.getTiempoItemSegundos());
         return r;
     }
