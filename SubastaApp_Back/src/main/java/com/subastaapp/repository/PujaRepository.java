@@ -17,5 +17,6 @@ public interface PujaRepository extends JpaRepository<Puja, Long> {
     Optional<Puja> findTopByItemIdOrderByImporteDesc(Long itemId);
 
     List<Puja> findByAsistenteUsuarioId(Long usuarioId);
+    List<Puja> findByAsistenteUsuarioIdAndGanador(Long usuarioId, Puja.EstadoGanador ganador);
     void deleteByItemId(Long itemId);
 }

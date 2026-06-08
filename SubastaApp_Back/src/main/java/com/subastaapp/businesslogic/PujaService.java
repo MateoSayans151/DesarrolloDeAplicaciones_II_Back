@@ -47,12 +47,16 @@ public class PujaService {
             throw new ConflictException("La subasta no esta abierta para pujas");
         }
 
-        if (subastaItem.getItemActivoId() == null || !subastaItem.getItemActivoId().equals(itemId)) {
+        if (subastaItem.getItemActivoId() == null || subastaItem.getItemActivoId().longValue() != itemId) {
             throw new ConflictException("El articulo por el que queres pujar no se está subastando actualmente");
         }
 
         BigDecimal precioBase = item.getPrecioBase();
         Optional<Puja> mejorPujaOpt = pujaRepository.findTopByItemIdOrderByImporteDesc(itemId);
+
+        if (mejorPujaOpt.isPresent() && mejorPujaOpt.get().getAsistente().getId().equals(asistente.getId())) {
+            throw new ConflictException("Ya tenés la mejor oferta, no podés superarte a vos mismo");
+        }
 
         BigDecimal mejorImporte = mejorPujaOpt.map(Puja::getImporte).orElse(precioBase);
 
@@ -93,10 +97,8 @@ public class PujaService {
     }
 
     public List<MiPujaResponse> listarMisPujas(Long usuarioId) {
-        return pujaRepository.findByAsistenteUsuarioId(usuarioId).stream().map(p -> {
-            BigDecimal mejorImporte = pujaRepository
-                    .findTopByItemIdOrderByImporteDesc(p.getItem().getId())
-                    .map(Puja::getImporte).orElse(p.getImporte());
+        return pujaRepository.findByAsistenteUsuarioIdAndGanador(usuarioId, Puja.EstadoGanador.si).stream().map(p -> {
+            BigDecimal mejorImporte = p.getImporte();
             MiPujaResponse r = new MiPujaResponse();
             r.setPujaId(p.getId());
             r.setImporte(p.getImporte());

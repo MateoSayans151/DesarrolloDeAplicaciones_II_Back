@@ -44,7 +44,8 @@ public class SubastaService {
         Subasta subasta = new Subasta();
         subasta.setFecha(req.getFecha());
         subasta.setHora(req.getHora());
-        subasta.setEstado(req.getEstado() != null ? req.getEstado() : Subasta.EstadoSubasta.cerrada);
+        subasta.setEstado(Subasta.EstadoSubasta.programada);
+        subasta.setTiempoItemSegundos(req.getTiempoItemSegundos());
         subasta.setCreadorUsuario(creador);
         subasta.setUbicacion(req.getUbicacion());
         subasta.setCapacidadAsistentes(req.getCapacidadAsistentes());
@@ -97,6 +98,11 @@ public class SubastaService {
     }
 
     private void iniciarSubastaSecuencial(Long subastaId) {
+        Subasta s = subastaRepository.findById(subastaId).orElse(null);
+        long tiempoEfectivo = (s != null && s.getTiempoItemSegundos() != null)
+                ? s.getTiempoItemSegundos()
+                : tiempoItemSegundos;
+
         catalogoRepository.findBySubastaId(subastaId).ifPresent(catalogo -> {
             System.out.println("SUBASTA " + subastaId + ": Escaneando catálogo (ID: " + catalogo.getId() + ") en búsqueda de ítems pendientes...");
 
@@ -109,7 +115,7 @@ public class SubastaService {
 
             if(!itemsPendientesIds.isEmpty()){
                 System.out.println("SUBASTA " + subastaId + ": Se encontraron " + itemsPendientesIds.size() + " ítems listos para ser rematados.");
-                avanzarAlSiguienteItem(subastaId, itemsPendientesIds, 0);
+                avanzarAlSiguienteItem(subastaId, itemsPendientesIds, 0, tiempoEfectivo);
             }
             else{
                 System.out.println("SUBASTA " + subastaId + ": ERROR - Intento de apertura rechazado. Todos los ítems ya fueron subastados.");
@@ -118,7 +124,7 @@ public class SubastaService {
         });
     }
 
-    private void avanzarAlSiguienteItem(Long subastaId, List<Long> itemIds, int indexActual) {
+    private void avanzarAlSiguienteItem(Long subastaId, List<Long> itemIds, int indexActual, long tiempoEfectivo) {
         transactionTemplate.execute(status -> {
             try {
                 Subasta subasta = subastaRepository.findById(subastaId).orElse(null);
@@ -153,13 +159,13 @@ public class SubastaService {
                         System.out.println("SUBASTA " + subastaId + ": >> INICIA EL REMATE DEL ÍTEM " + nuevoItem.getId() + " <<");
                         System.out.println("SUBASTA " + subastaId + ": Producto: " + nuevoItem.getProducto().getDescripcionCompleta());
                         System.out.println("SUBASTA " + subastaId + ": Precio Base: $" + nuevoItem.getPrecioBase());
-                        System.out.println("SUBASTA " + subastaId + ": Se reciben ofertas por " + tiempoItemSegundos + " segundos...");
+                        System.out.println("SUBASTA " + subastaId + ": Se reciben ofertas por " + tiempoEfectivo + " segundos...");
                         System.out.println("----------------------------------------------------------\n");
 
                         // Programar el siguiente salto
                         scheduler.schedule(() -> {
-                            avanzarAlSiguienteItem(subastaId, itemIds, indexActual + 1);
-                        }, tiempoItemSegundos, TimeUnit.SECONDS);
+                            avanzarAlSiguienteItem(subastaId, itemIds, indexActual + 1, tiempoEfectivo);
+                        }, tiempoEfectivo, TimeUnit.SECONDS);
                     }
                 } else {
                     // 3. Ya no hay más items

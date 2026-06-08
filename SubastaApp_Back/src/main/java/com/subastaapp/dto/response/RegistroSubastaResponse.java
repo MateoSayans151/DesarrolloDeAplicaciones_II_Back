@@ -11,7 +11,9 @@ public class RegistroSubastaResponse {
     private Long subasta;
     private Long propietarioUsuarioId;
     private Long producto;
+    private String productoDescripcion;
     private Long compradorUsuarioId;
+    private String compradorNombre;
     private BigDecimal importe;
     private BigDecimal comision;
 
@@ -21,7 +23,13 @@ public class RegistroSubastaResponse {
         res.setSubasta(r.getSubasta().getId());
         res.setPropietarioUsuarioId(r.getPropietarioUsuario().getId());
         res.setProducto(r.getProducto().getId());
-        res.setCompradorUsuarioId(r.getCompradorUsuario() != null ? r.getCompradorUsuario().getId() : null);
+        res.setProductoDescripcion(r.getProducto().getDescripcionCompleta());
+        if (r.getCompradorUsuario() != null) {
+            res.setCompradorUsuarioId(r.getCompradorUsuario().getId());
+            res.setCompradorNombre(r.getCompradorUsuario().getNombre() + " " + r.getCompradorUsuario().getApellido());
+        } else {
+            res.setCompradorNombre("La empresa");
+        }
         res.setImporte(r.getImporte());
         res.setComision(r.getComision());
         return res;

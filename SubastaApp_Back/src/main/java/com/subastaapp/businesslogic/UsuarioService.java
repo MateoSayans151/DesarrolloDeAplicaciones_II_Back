@@ -112,7 +112,12 @@ public class UsuarioService {
         return UsuarioResponse.from(usuarioRepository.save(usuario));
     }
 
-    public void verificar(Long id, UsuarioVerificacionRequest req) {
+    public List<UsuarioResponse> listarPendientes() {
+        return usuarioRepository.findByVerificado(Usuario.EstadoVerificacion.no)
+                .stream().map(UsuarioResponse::from).toList();
+    }
+
+    public String verificar(Long id, UsuarioVerificacionRequest req) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
         usuario.setVerificado(req.getVerificado());
@@ -122,15 +127,12 @@ public class UsuarioService {
             usuario.setCalificacionRiesgo(req.getCalificacionRiesgo());
             usuario.setCategoria(calcularCategoria(req.getCalificacionRiesgo()));
         }
+        usuarioRepository.save(usuario);
 
         if (req.getVerificado() == Usuario.EstadoVerificacion.si) {
-            String tokenTemporal = jwtUtil.generateToken(usuario.getDocumento());
-            System.out.println("=====================================================");
-            System.out.println("EMAIL ENVIADO AL USUARIO: " + usuario.getNombre());
-            System.out.println("Link para completar registro: subastaapp://registro?token=" + tokenTemporal);
-            System.out.println("=====================================================");
+            return jwtUtil.generateToken(usuario.getDocumento());
         }
-        usuarioRepository.save(usuario);
+        return null;
     }
 
     public TokenResponse obtenerTokenRegistroDev(String documento){

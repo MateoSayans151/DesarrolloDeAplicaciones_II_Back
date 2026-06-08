@@ -122,9 +122,14 @@ public class CatalogoService {
             throw new ForbiddenException("El item no pertenece a este catálogo");
         }
         Catalogo catalogo = item.getCatalogo();
-        if (catalogo.getSubasta() != null &&
-                Subasta.EstadoSubasta.abierta.equals(catalogo.getSubasta().getEstado())) {
-            throw new ConflictException("No se puede modificar el catálogo de una subasta abierta");
+        if (catalogo.getSubasta() != null) {
+            Subasta.EstadoSubasta estado = catalogo.getSubasta().getEstado();
+            if (Subasta.EstadoSubasta.abierta.equals(estado)) {
+                throw new ConflictException("No se puede modificar el catálogo de una subasta abierta");
+            }
+            if (item.getSubastado() == ItemCatalogo.subastado_bool.si) {
+                throw new ConflictException("No se puede eliminar un producto que ya fue subastado");
+            }
         }
         pujaRepository.deleteByItemId(itemId);
         itemCatalogoRepository.delete(item);

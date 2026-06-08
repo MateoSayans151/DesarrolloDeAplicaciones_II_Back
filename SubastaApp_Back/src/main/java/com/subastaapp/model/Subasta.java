@@ -53,8 +53,11 @@ public class Subasta {
     @Column(name = "item_activo_id")
     private Integer itemActivoId;
 
+    @Column(name = "tiempo_item_segundos")
+    private Integer tiempoItemSegundos;
+
     public enum EstadoSubasta {
-        abierta, cerrada
+        abierta, cerrada, programada
     }
 
     public enum CategoriaSubasta {

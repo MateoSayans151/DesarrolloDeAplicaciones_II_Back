@@ -16,6 +16,8 @@ public class SubastaResponse {
     private String categoria;
     private String ubicacion;
     private Integer capacidadAsistentes;
+    private Integer itemActivoId;
+    private Integer tiempoItemSegundos;
 
     public static SubastaResponse from(Subasta s) {
         SubastaResponse r = new SubastaResponse();
@@ -27,6 +29,8 @@ public class SubastaResponse {
         r.setCategoria(s.getCategoria().name());
         r.setUbicacion(s.getUbicacion());
         r.setCapacidadAsistentes(s.getCapacidadAsistentes());
+        r.setItemActivoId(s.getItemActivoId());
+        r.setTiempoItemSegundos(s.getTiempoItemSegundos());
         return r;
     }
 }

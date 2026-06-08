@@ -22,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -65,11 +66,19 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.obtenerPorId(id));
     }
 
+    @GetMapping("/admin/pendientes")
+    public ResponseEntity<List<UsuarioResponse>> listarPendientes() {
+        return ResponseEntity.ok(usuarioService.listarPendientes());
+    }
+
     @PostMapping("/admin/{id}/verificacion")
-    public ResponseEntity<Void> verificar(@PathVariable Long id,
-                                          @Valid @RequestBody UsuarioVerificacionRequest req) {
-        usuarioService.verificar(id, req);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Map<String, String>> verificar(@PathVariable Long id,
+                                                         @Valid @RequestBody UsuarioVerificacionRequest req) {
+        String token = usuarioService.verificar(id, req);
+        if (token != null) {
+            return ResponseEntity.ok(Map.of("token", token));
+        }
+        return ResponseEntity.ok(Map.of());
     }
 
     @GetMapping("/dev/token-registro/{documento}")

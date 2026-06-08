@@ -21,4 +21,5 @@ public class SubastaRequest {
     private Subasta.OpcionSiNo seguridadPropia;
     @NotNull
     private Subasta.CategoriaSubasta categoria;
+    private Integer tiempoItemSegundos;
 }
