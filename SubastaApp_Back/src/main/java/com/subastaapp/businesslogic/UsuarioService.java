@@ -4,6 +4,7 @@ import com.subastaapp.config.JwtUtil;
 import com.subastaapp.dto.request.*;
 import com.subastaapp.dto.response.EstadisticasUsuarioResponse;
 import com.subastaapp.dto.response.MedioPagoResponse;
+import com.subastaapp.dto.response.NivelProgressResponse;
 import com.subastaapp.dto.response.TokenResponse;
 import com.subastaapp.dto.response.UsuarioPublicoResponse;
 import com.subastaapp.dto.response.UsuarioResponse;
@@ -13,7 +14,9 @@ import com.subastaapp.exception.UnauthorizedException;
 import com.subastaapp.mapper.MedioPagoMapper;
 import com.subastaapp.model.*;
 import com.subastaapp.repository.MedioPagoRepository;
+import com.subastaapp.repository.NivelCategoriaRepository;
 import com.subastaapp.repository.ProductoRepository;
+import com.subastaapp.repository.PujaRepository;
 import com.subastaapp.repository.RegistroSubastaRepository;
 import com.subastaapp.repository.SubastaRepository;
 import com.subastaapp.repository.UsuarioRepository;
@@ -32,6 +35,8 @@ import java.util.stream.Collectors;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final NivelCategoriaRepository nivelCategoriaRepository;
+    private final PujaRepository pujaRepository;
     private final MedioPagoRepository medioPagoRepository;
     private final SubastaRepository subastaRepository;
     private final ProductoRepository productoRepository;
@@ -125,8 +130,12 @@ public class UsuarioService {
         if (req.getVerificacionJudicial() != null) usuario.setVerificacionJudicial(req.getVerificacionJudicial());
         if (req.getCalificacionRiesgo() != null) {
             usuario.setCalificacionRiesgo(req.getCalificacionRiesgo());
-            usuario.setCategoria(calcularCategoria(req.getCalificacionRiesgo()));
         }
+        
+        NivelCategoria nivelComun = nivelCategoriaRepository.findByNombre("comun")
+        .orElseThrow(() -> new ResourceNotFoundException("Nivel 'comun' no encontrado"));
+        usuario.setNivelCategoria(nivelComun);
+       
         usuarioRepository.save(usuario);
 
         if (req.getVerificado() == Usuario.EstadoVerificacion.si) {
@@ -144,17 +153,6 @@ public class UsuarioService {
         }
 
         return new TokenResponse(jwtUtil.generateToken(usuario.getDocumento()));
-    }
-
-    private Usuario.CategoriaUsuario calcularCategoria(int calificacion) {
-        return switch (calificacion) {
-            case 1, 2 -> Usuario.CategoriaUsuario.comun;
-            case 3 -> Usuario.CategoriaUsuario.especial;
-            case 4 -> Usuario.CategoriaUsuario.plata;
-            case 5 -> Usuario.CategoriaUsuario.oro;
-            case 6 -> Usuario.CategoriaUsuario.platino;
-            default -> Usuario.CategoriaUsuario.comun;
-        };
     }
 
     public MedioPagoResponse getMedioPagoById(Long id, String documento) {
@@ -193,7 +191,7 @@ public class UsuarioService {
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
         EstadisticasUsuarioResponse stats = new EstadisticasUsuarioResponse();
         stats.setUsuarioId(id);
-        stats.setCategoria(usuario.getCategoria() != null ? usuario.getCategoria().name() : null);
+        stats.setCategoria(usuario.getNivelCategoria() != null ? usuario.getNivelCategoria().getNombre() : null);
         stats.setSubastasCreadas(subastaRepository.countByCreadorUsuarioId(id));
         stats.setProductosSubidos(productoRepository.countByPropietarioUsuarioId(id));
         stats.setProductosVendidos(registroSubastaRepository.countByPropietarioUsuarioId(id));
@@ -211,5 +209,47 @@ public class UsuarioService {
             throw new UnauthorizedException("No tenes permiso para eliminar este medio de pago.");
         }
         medioPagoRepository.delete(medioPago);
+    }
+
+    public NivelProgressResponse obtenerNivelProgress(Long usuarioId) {
+        usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        long pujasGanadas = pujaRepository.countByAsistenteUsuarioIdAndGanador(
+                usuarioId, Puja.EstadoGanador.si);
+
+        List<NivelCategoria> niveles = nivelCategoriaRepository.findAllByOrderByPujasGanadasNecesariasAsc();
+
+        NivelCategoria nivelActual = niveles.get(0);
+        int indexActual = 0;
+        for (int i = 0; i < niveles.size(); i++) {
+            if (pujasGanadas >= niveles.get(i).getPujasGanadasNecesarias()) {
+                nivelActual = niveles.get(i);
+                indexActual = i;
+            }
+        }
+
+        NivelCategoria nivelSiguiente = indexActual < niveles.size() - 1
+                ? niveles.get(indexActual + 1) : null;
+
+        double progreso;
+        Integer pujasParaSiguiente = null;
+
+        if (nivelSiguiente == null) {
+            progreso = 1.0;
+        } else {
+            pujasParaSiguiente = nivelSiguiente.getPujasGanadasNecesarias();
+            int base = nivelActual.getPujasGanadasNecesarias();
+            int rango = pujasParaSiguiente - base;
+            progreso = rango > 0 ? (double) (pujasGanadas - base) / rango : 1.0;
+        }
+
+        return new NivelProgressResponse(
+                nivelActual.getNombre(),
+                (int) pujasGanadas,
+                pujasParaSiguiente,
+                progreso,
+                nivelActual.getNombre()
+        );
     }
 }

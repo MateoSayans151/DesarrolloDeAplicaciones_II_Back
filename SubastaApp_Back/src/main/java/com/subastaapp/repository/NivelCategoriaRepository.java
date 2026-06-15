@@ -1,0 +1,12 @@
+package com.subastaapp.repository;
+
+import com.subastaapp.model.NivelCategoria;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface NivelCategoriaRepository extends JpaRepository<NivelCategoria, Long> {
+    Optional<NivelCategoria> findByNombre(String nombre);
+    List<NivelCategoria> findAllByOrderByPujasGanadasNecesariasAsc();
+}

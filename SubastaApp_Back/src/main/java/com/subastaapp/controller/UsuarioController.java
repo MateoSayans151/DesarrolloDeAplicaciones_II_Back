@@ -9,6 +9,7 @@ import com.subastaapp.dto.request.*;
 import com.subastaapp.dto.response.EstadisticasUsuarioResponse;
 import com.subastaapp.dto.response.MiPujaResponse;
 import com.subastaapp.dto.response.MedioPagoResponse;
+import com.subastaapp.dto.response.NivelProgressResponse;
 import com.subastaapp.dto.response.ProductoResponse;
 import com.subastaapp.dto.response.SubastaResponse;
 import com.subastaapp.dto.response.TokenResponse;
@@ -130,5 +131,10 @@ public class UsuarioController {
     @GetMapping("/{id}/pujas")
     public ResponseEntity<List<MiPujaResponse>> obtenerMisPujas(@PathVariable Long id) {
         return ResponseEntity.ok(pujaService.listarMisPujas(id));
+    }
+
+    @GetMapping("/{id}/nivel")
+    public ResponseEntity<NivelProgressResponse> obtenerNivelProgress(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioService.obtenerNivelProgress(id));
     }
 }

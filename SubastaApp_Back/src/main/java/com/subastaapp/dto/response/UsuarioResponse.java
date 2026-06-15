@@ -5,6 +5,7 @@ import lombok.Data;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 @Data
 public class UsuarioResponse {
     private Long id;
@@ -17,7 +18,7 @@ public class UsuarioResponse {
     private String fotoDocumentoFrente;
     private String fotoDocumentoDorso;
     private Usuario.EstadoVerificacion verificado;
-    private Usuario.CategoriaUsuario categoria;
+    private String categoria;
     private Usuario.EstadoVerificacion verificacionFinanciera;
     private Usuario.EstadoVerificacion verificacionJudicial;
     private Integer calificacionRiesgo;
@@ -36,7 +37,7 @@ public class UsuarioResponse {
         r.setFotoDocumentoFrente(u.getFotoDocumentoFrente());
         r.setFotoDocumentoDorso(u.getFotoDocumentoDorso());
         r.setVerificado(u.getVerificado());
-        r.setCategoria(u.getCategoria());
+        r.setCategoria(u.getNivelCategoria() != null ? u.getNivelCategoria().getNombre() : null);
         r.setCalificacionRiesgo(u.getCalificacionRiesgo());
         r.setVerificacionFinanciera(u.getVerificacionFinanciera());
         r.setVerificacionJudicial(u.getVerificacionJudicial());

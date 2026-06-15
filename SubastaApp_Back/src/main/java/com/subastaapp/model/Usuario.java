@@ -66,8 +66,10 @@ public class Usuario implements UserDetails {
 
     private Integer calificacionRiesgo;
 
-    @Enumerated(EnumType.STRING)
-    private CategoriaUsuario categoria;
+
+    @ManyToOne
+    @JoinColumn(name = "nivel_categoria_id")
+    private NivelCategoria nivelCategoria;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -83,9 +85,6 @@ public class Usuario implements UserDetails {
         si, no
     }
 
-    public enum CategoriaUsuario {
-        comun, especial, plata, oro, platino
-    }
 
     public enum User_roles{
         USER, ADMIN

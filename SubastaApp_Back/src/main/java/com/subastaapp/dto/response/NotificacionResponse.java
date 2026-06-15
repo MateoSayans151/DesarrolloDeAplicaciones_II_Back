@@ -18,7 +18,7 @@ public class NotificacionResponse {
         r.setId(n.getId());
         r.setTitulo(n.getTitulo());
         r.setMensaje(n.getMensaje());
-        r.setCategoriaDestino(n.getCategoriaDestino().name());
+        r.setCategoriaDestino(n.getCategoriaDestino());
         r.setFechaCreacion(n.getFechaCreacion());
         return r;
     }

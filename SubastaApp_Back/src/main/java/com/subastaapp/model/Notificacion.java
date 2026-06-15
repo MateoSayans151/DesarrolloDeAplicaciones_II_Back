@@ -3,7 +3,6 @@ package com.subastaapp.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,9 +21,8 @@ public class Notificacion {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String mensaje;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Usuario.CategoriaUsuario categoriaDestino;
+    private String categoriaDestino;
 
     @Column(nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
