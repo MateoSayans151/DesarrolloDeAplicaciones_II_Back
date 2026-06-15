@@ -72,9 +72,9 @@ public class AsistenteService {
         categorias.put("oro", 4);
         categorias.put("platino", 5);
         System.out.println("categoria subasta: " + subasta.getCategoria());
-        System.out.println("categoria usuario: " + usuario.getCategoria());
+        System.out.println("categoria usuario: " + usuario.getNivelCategoria());
         int subasta_rank = categorias.get(subasta.getCategoria().name());
-        int user_rank = categorias.get(usuario.getCategoria().name());
+        int user_rank = categorias.get(usuario.getNivelCategoria() != null ? usuario.getNivelCategoria().getNombre() : "comun");
         if(subasta_rank>user_rank){
             throw new ForbiddenException("La subasta es de categoría más alta");
         }

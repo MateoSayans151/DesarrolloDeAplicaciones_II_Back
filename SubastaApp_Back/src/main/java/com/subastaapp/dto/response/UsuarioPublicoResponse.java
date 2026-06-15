@@ -9,7 +9,7 @@ public class UsuarioPublicoResponse {
     private String nombre;
     private String apellido;
     private String fotoBase64;
-    private Usuario.CategoriaUsuario categoria;
+    private String categoria;
 
     public static UsuarioPublicoResponse from(Usuario u) {
         UsuarioPublicoResponse r = new UsuarioPublicoResponse();
@@ -17,7 +17,7 @@ public class UsuarioPublicoResponse {
         r.setNombre(u.getNombre());
         r.setApellido(u.getApellido());
         r.setFotoBase64(u.getFotoBase64());
-        r.setCategoria(u.getCategoria());
+        r.setCategoria(u.getNivelCategoria() != null ? u.getNivelCategoria().getNombre() : null);
         return r;
     }
 }

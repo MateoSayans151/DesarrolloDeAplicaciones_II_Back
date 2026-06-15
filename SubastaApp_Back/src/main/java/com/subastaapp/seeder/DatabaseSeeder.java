@@ -24,6 +24,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final AsistenteRepository asistenteRepository;
     private final PujaRepository pujaRepository;
     private final RegistroSubastaRepository registroSubastaRepository;
+    private final NivelCategoriaRepository nivelCategoriaRepository;
 
     @Override
     @Transactional
@@ -36,7 +37,19 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         System.out.println("Iniciando carga de datos de prueba...");
 
-        // 1. OBTENER USUARIOS EXISTENTES
+        // 1. CREAR NIVELES DE CATEGORÍA
+        nivelCategoriaRepository.findByNombre("comun")
+                .orElseGet(() -> nivelCategoriaRepository.save(new NivelCategoria(null, "comun", 0)));
+        nivelCategoriaRepository.findByNombre("plata")
+                .orElseGet(() -> nivelCategoriaRepository.save(new NivelCategoria(null, "plata", 3)));
+        nivelCategoriaRepository.findByNombre("oro")
+                .orElseGet(() -> nivelCategoriaRepository.save(new NivelCategoria(null, "oro", 5)));
+        NivelCategoria nivelPlatino = nivelCategoriaRepository.findByNombre("platino")
+                .orElseGet(() -> nivelCategoriaRepository.save(new NivelCategoria(null, "platino", 10)));
+        nivelCategoriaRepository.findByNombre("especial")
+                .orElseGet(() -> nivelCategoriaRepository.save(new NivelCategoria(null, "especial", 15)));
+
+        // 3. OBTENER USUARIOS EXISTENTES
         List<Usuario> admins = usuarioRepository.findAll().stream()
                 .filter(u -> u.getRole() == Usuario.User_roles.ADMIN)
                 .toList();
@@ -53,14 +66,14 @@ public class DatabaseSeeder implements CommandLineRunner {
         Usuario postor1 = users.get(0);
 
         // Elevamos la categoría del postor1 a Platino para que no rebote por validaciones de categoría al testear
-        postor1.setCategoria(Usuario.CategoriaUsuario.platino);
+        postor1.setNivelCategoria(nivelPlatino);
         postor1.setVerificado(Usuario.EstadoVerificacion.si);
         usuarioRepository.save(postor1);
 
         Usuario postor2 = users.size() > 1 ? users.get(1) : postor1;
 
 
-        // 2. CREAR PRODUCTOS
+        // 4. CREAR PRODUCTOS
         Producto reloj = new Producto();
         reloj.setFecha(LocalDate.now().minusDays(10));
         reloj.setEstado(Producto.EstadoProducto.ACEPTADO);
