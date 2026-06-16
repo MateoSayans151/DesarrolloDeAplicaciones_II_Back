@@ -31,6 +31,7 @@ public class SubastaService {
     private final RegistroSubastaRepository registroSubastaRepository;
     private final CatalogoRepository catalogoRepository;
     private final AsistenteRepository asistenteRepository;
+    private final UsuarioService usuarioService;
 
     private final TransactionTemplate transactionTemplate;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
@@ -207,6 +208,8 @@ public class SubastaService {
 
             registro.setCompradorUsuario(puja.getAsistente().getUsuario());
             registro.setImporte(puja.getImporte());
+
+            usuarioService.actualizarNivelSiCorresponde(puja.getAsistente().getUsuario().getId());
 
             System.out.println("SUBASTA " + subasta.getId() + ": ¡VENDIDO! Ganador: Usuario ID " + puja.getAsistente().getUsuario().getId() + " - Oferta final: $" + puja.getImporte());
         } else {
