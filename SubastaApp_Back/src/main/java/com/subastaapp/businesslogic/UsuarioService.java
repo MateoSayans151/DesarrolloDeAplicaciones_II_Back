@@ -211,6 +211,23 @@ public class UsuarioService {
         medioPagoRepository.delete(medioPago);
     }
 
+    public void actualizarNivelSiCorresponde(Long usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        NivelProgressResponse nivelProgress = obtenerNivelProgress(usuarioId);
+        String nivelCalculado = nivelProgress.getNivelActual();
+        String nivelActualNombre = usuario.getNivelCategoria() != null
+                ? usuario.getNivelCategoria().getNombre() : null;
+
+        if (!nivelCalculado.equals(nivelActualNombre)) {
+            NivelCategoria nuevoNivel = nivelCategoriaRepository.findByNombre(nivelCalculado)
+                    .orElseThrow(() -> new ResourceNotFoundException("Nivel '" + nivelCalculado + "' no encontrado"));
+            usuario.setNivelCategoria(nuevoNivel);
+            usuarioRepository.save(usuario);
+        }
+    }
+
     public NivelProgressResponse obtenerNivelProgress(Long usuarioId) {
         usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
