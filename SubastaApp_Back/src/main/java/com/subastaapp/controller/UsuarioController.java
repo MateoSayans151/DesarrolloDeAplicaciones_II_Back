@@ -81,6 +81,10 @@ public class UsuarioController {
         }
         return ResponseEntity.ok(Map.of());
     }
+    @PatchMapping("/admin/{id}/medios-pago")
+    public ResponseEntity<UsuarioResponse> verificarMediosPago(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioService.verificarMediosPago(id));
+    }
 
     @GetMapping("/dev/token-registro/{documento}")
     public ResponseEntity<TokenResponse> obtenerTokenRegistroDev(@PathVariable String documento) {

@@ -131,11 +131,11 @@ public class UsuarioService {
         if (req.getCalificacionRiesgo() != null) {
             usuario.setCalificacionRiesgo(req.getCalificacionRiesgo());
         }
-        
+
         NivelCategoria nivelComun = nivelCategoriaRepository.findByNombre("comun")
         .orElseThrow(() -> new ResourceNotFoundException("Nivel 'comun' no encontrado"));
         usuario.setNivelCategoria(nivelComun);
-       
+
         usuarioRepository.save(usuario);
 
         if (req.getVerificado() == Usuario.EstadoVerificacion.si) {
@@ -268,5 +268,20 @@ public class UsuarioService {
                 progreso,
                 nivelActual.getNombre()
         );
+
+
     }
+    public UsuarioResponse verificarMediosPago(Long id) {
+            Usuario usuario = usuarioRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+            if (usuario.getMedioPagos() == null || usuario.getMedioPagos().isEmpty()) {
+                throw new ConflictException("El usuario no tiene medios de pago registrados");
+            }
+            usuario.getMedioPagos().forEach(medioPago -> {
+                if (medioPago.getVerificado() != MedioPago.EstadoVerificacion.si) {
+                    medioPago.setVerificado(MedioPago.EstadoVerificacion.si);
+                }
+            });
+            return new UsuarioResponse(); // Replace with actual response
+        }
 }
