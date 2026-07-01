@@ -229,7 +229,7 @@ public class UsuarioService {
     }
 
     public NivelProgressResponse obtenerNivelProgress(Long usuarioId) {
-        usuarioRepository.findById(usuarioId)
+        Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         long pujasGanadas = pujaRepository.countByAsistenteUsuarioIdAndGanador(
@@ -237,12 +237,26 @@ public class UsuarioService {
 
         List<NivelCategoria> niveles = nivelCategoriaRepository.findAllByOrderByPujasGanadasNecesariasAsc();
 
-        NivelCategoria nivelActual = niveles.get(0);
+        NivelCategoria nivelActual;
         int indexActual = 0;
-        for (int i = 0; i < niveles.size(); i++) {
-            if (pujasGanadas >= niveles.get(i).getPujasGanadasNecesarias()) {
-                nivelActual = niveles.get(i);
-                indexActual = i;
+
+        if (usuario.getNivelCategoria() != null) {
+            // El usuario ya tiene un nivel asignado (ej: id=4, "Platino") -> se respeta ese
+            nivelActual = usuario.getNivelCategoria();
+            for (int i = 0; i < niveles.size(); i++) {
+                if (niveles.get(i).getId().equals(nivelActual.getId())) {
+                    indexActual = i;
+                    break;
+                }
+            }
+        } else {
+            // Sin nivel asignado -> se calcula a partir de las pujas ganadas
+            nivelActual = niveles.get(0);
+            for (int i = 0; i < niveles.size(); i++) {
+                if (pujasGanadas >= niveles.get(i).getPujasGanadasNecesarias()) {
+                    nivelActual = niveles.get(i);
+                    indexActual = i;
+                }
             }
         }
 
