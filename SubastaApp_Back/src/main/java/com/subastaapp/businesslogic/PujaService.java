@@ -47,6 +47,13 @@ public class PujaService {
             throw new ConflictException("La subasta no esta abierta para pujas");
         }
 
+        Usuario usuario = asistente.getUsuario();
+        boolean tieneMedioVerificado = usuario.getMedioPagos().stream()
+        .anyMatch(m -> m.getVerificado() == MedioPago.EstadoVerificacion.si);
+        if (!tieneMedioVerificado) {
+            throw new ForbiddenException("Necesitás un medio de pago verificado por la empresa para pujar.");
+        }
+
         if (subastaItem.getItemActivoId() == null || subastaItem.getItemActivoId().longValue() != itemId) {
             throw new ConflictException("El articulo por el que queres pujar no se está subastando actualmente");
         }
