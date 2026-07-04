@@ -12,7 +12,9 @@ import com.subastaapp.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -33,14 +35,24 @@ public class NotificacionService {
         return NotificacionResponse.from(notificacionRepository.save(notificacion));
     }
 
+    public void notificarUsuario(Usuario destino, String titulo, String mensaje) {
+        Notificacion notificacion = new Notificacion();
+        notificacion.setTitulo(titulo);
+        notificacion.setMensaje(mensaje);
+        notificacion.setUsuarioDestino(destino);
+        notificacionRepository.save(notificacion);
+    }
+
     public List<NotificacionResponse> listarParaUsuario(String documento) {
         Usuario usuario = usuarioRepository.findByDocumento(documento)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-        if (usuario.getNivelCategoria() == null) {
-            return List.of();
-        }
-        return notificacionRepository
-                .findByCategoriaDestinoOrderByFechaCreacionDesc(usuario.getNivelCategoria().getNombre())
-                .stream().map(NotificacionResponse::from).toList();
+        List<Notificacion> porCategoria = usuario.getNivelCategoria() != null
+                ? notificacionRepository.findByCategoriaDestinoOrderByFechaCreacionDesc(usuario.getNivelCategoria().getNombre())
+                : List.of();
+        List<Notificacion> dirigidas = notificacionRepository.findByUsuarioDestinoIdOrderByFechaCreacionDesc(usuario.getId());
+        return Stream.concat(porCategoria.stream(), dirigidas.stream())
+                .sorted(Comparator.comparing(Notificacion::getFechaCreacion).reversed())
+                .map(NotificacionResponse::from)
+                .toList();
     }
 }

@@ -27,6 +27,7 @@ public class ProductoResponse {
     private Boolean origenLicitoDeclarado;
     private Boolean propietarioDeclarado;
     private String motivoRechazo;
+    private java.math.BigDecimal precioPropuesto;
 
     public static ProductoResponse from(Producto p) {
         ProductoResponse r = new ProductoResponse();
@@ -48,6 +49,7 @@ public class ProductoResponse {
         r.setOrigenLicitoDeclarado(p.getOrigenLicitoDeclarado());
         r.setPropietarioDeclarado(p.getPropietarioDeclarado());
         r.setMotivoRechazo(p.getMotivoRechazo());
+        r.setPrecioPropuesto(p.getPrecioPropuesto());
         if (p.getFotos() != null) {
             r.setFotos(p.getFotos().stream().map(f -> f.getFotoBase64()).collect(Collectors.toList()));
         }

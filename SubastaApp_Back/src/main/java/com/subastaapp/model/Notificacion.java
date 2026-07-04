@@ -21,8 +21,11 @@ public class Notificacion {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String mensaje;
 
-    @Column(nullable = false)
     private String categoriaDestino;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_destino_id")
+    private Usuario usuarioDestino;
 
     @Column(nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();

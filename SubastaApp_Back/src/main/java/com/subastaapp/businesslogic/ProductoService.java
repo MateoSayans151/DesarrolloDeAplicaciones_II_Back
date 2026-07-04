@@ -33,6 +33,7 @@ public class ProductoService {
     private final CatalogoRepository catalogoRepository;
     private final ItemCatalogoRepository itemCatalogoRepository;
     private final FotoRepository fotoRepository;
+    private final NotificacionService notificacionService;
 
     public List<ProductoResponse> listarTodos() {
         return productoRepository.findAll()
@@ -73,32 +74,82 @@ return ProductoResponse.from(productoGuardado);
 }
 
 @org.springframework.transaction.annotation.Transactional
-public void aprobarProducto(Long id, java.math.BigDecimal precioBase) {
+public void aprobarProducto(Long id, java.math.BigDecimal precioPropuesto) {
     Producto producto = productoRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
 
-    if (producto.getMontoAsegurado() != null && precioBase.compareTo(producto.getMontoAsegurado()) < 0) {
-        throw new ConflictException("El precio base no puede ser menor al valor pretendido por el propietario ($" + producto.getMontoAsegurado() + ")");
+    if (producto.getEstado() != Producto.EstadoProducto.PENDIENTE_INSPECCION) {
+        throw new ConflictException("Solo se pueden aprobar productos en estado PENDIENTE_INSPECCION");
     }
 
-    producto.setEstado(Producto.EstadoProducto.ACEPTADO);
+    if (producto.getMontoAsegurado() != null && precioPropuesto.compareTo(producto.getMontoAsegurado()) < 0) {
+        throw new ConflictException("El precio propuesto no puede ser menor al valor pretendido por el propietario ($" + producto.getMontoAsegurado() + ")");
+    }
+
+    producto.setPrecioPropuesto(precioPropuesto);
+    producto.setEstado(Producto.EstadoProducto.PROPUESTA_ENVIADA);
     productoRepository.save(producto);
 
-    // El administrador coloca el precio mínimo de puja (precio base)
-    itemCatalogoRepository.findByProductoId(id).stream().findFirst().ifPresent(item -> {
-        item.setPrecioBase(precioBase);
-        item.setSubastado(ItemCatalogo.subastado_bool.no);
-        itemCatalogoRepository.save(item);
-    });
+    notificacionService.notificarUsuario(producto.getPropietarioUsuario(),
+            "Propuesta de precio recibida",
+            "Tu producto \"" + producto.getDescripcionCompleta() + "\" fue aprobado con un precio propuesto de $" + precioPropuesto + ". Ingresá a la app para aceptar o rechazar.");
 }
+
+@org.springframework.transaction.annotation.Transactional
+public void rechazarProducto(Long id, String motivoRechazo) {
+    Producto producto = productoRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
+
+    if (producto.getEstado() != Producto.EstadoProducto.PENDIENTE_INSPECCION) {
+        throw new ConflictException("Solo se pueden rechazar productos en estado PENDIENTE_INSPECCION");
+    }
+
+    producto.setEstado(Producto.EstadoProducto.RECHAZADO);
+    producto.setMotivoRechazo(motivoRechazo);
+    productoRepository.save(producto);
+
+    notificacionService.notificarUsuario(producto.getPropietarioUsuario(),
+            "Producto rechazado",
+            "Tu producto \"" + producto.getDescripcionCompleta() + "\" fue rechazado. Motivo: " + motivoRechazo);
+}
+
+@org.springframework.transaction.annotation.Transactional
+public void aceptarPrecio(Long id, String documento) {
+    Producto producto = obtenerYValidarPropietario(id, documento);
+    if (producto.getEstado() != Producto.EstadoProducto.PROPUESTA_ENVIADA) {
+        throw new ConflictException("El producto no tiene una propuesta de precio pendiente");
+    }
+    producto.setEstado(Producto.EstadoProducto.ACEPTADO_POR_USUARIO);
+    productoRepository.save(producto);
+}
+
+@org.springframework.transaction.annotation.Transactional
+public void rechazarPrecio(Long id, String documento) {
+    Producto producto = obtenerYValidarPropietario(id, documento);
+    if (producto.getEstado() != Producto.EstadoProducto.PROPUESTA_ENVIADA) {
+        throw new ConflictException("El producto no tiene una propuesta de precio pendiente");
+    }
+    producto.setEstado(Producto.EstadoProducto.RECHAZADO_POR_USUARIO);
+    productoRepository.save(producto);
+}
+
+private Producto obtenerYValidarPropietario(Long id, String documento) {
+    Producto producto = productoRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
+    if (!producto.getPropietarioUsuario().getDocumento().equals(documento)) {
+        throw new com.subastaapp.exception.UnauthorizedException("No tenés permiso sobre este producto");
+    }
+    return producto;
+}
+
 public void eliminar(Long productoId, String documento) {
     Producto producto = productoRepository.findById(productoId)
             .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
     if (!producto.getPropietarioUsuario().getDocumento().equals(documento)) {
         throw new com.subastaapp.exception.UnauthorizedException("No tenés permiso para eliminar este producto");
     }
-    if (producto.getEstado() != Producto.EstadoProducto.PENDIENTE) {
-        throw new com.subastaapp.exception.ConflictException("Solo se pueden eliminar productos en estado PENDIENTE");
+    if (producto.getEstado() != Producto.EstadoProducto.PENDIENTE_INSPECCION) {
+        throw new com.subastaapp.exception.ConflictException("Solo se pueden eliminar productos en estado PENDIENTE_INSPECCION");
     }
     productoRepository.delete(producto);
 }
@@ -125,7 +176,7 @@ private LocalDate parseFecha(String fecha) {
 private Producto buildProducto(ProductoRequest req, Usuario propietario) {
     Producto p = new Producto();
     p.setFecha(parseFecha(req.getFecha()));
-    p.setEstado(Producto.EstadoProducto.PENDIENTE);
+    p.setEstado(Producto.EstadoProducto.PENDIENTE_INSPECCION);
     p.setDescripcionCompleta(req.getDescripcionCompleta());
     p.setPropietarioUsuario(propietario);
     p.setPolizaSeguro(req.getPolizaSeguro());

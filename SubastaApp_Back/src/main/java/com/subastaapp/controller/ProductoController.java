@@ -2,6 +2,7 @@ package com.subastaapp.controller;
 
 import com.subastaapp.dto.request.AprobacionProductoRequest;
 import com.subastaapp.dto.request.ProductoRequest;
+import com.subastaapp.dto.request.RechazoProductoRequest;
 import com.subastaapp.dto.response.ProductoResponse;
 import org.springframework.security.core.Authentication;
 import jakarta.validation.Valid;
@@ -45,9 +46,28 @@ public class ProductoController {
     }
 
     @PatchMapping("/admin/{id}/aprobar")
-    public ResponseEntity<Void> aprobar(@PathVariable Long id, 
+    public ResponseEntity<Void> aprobar(@PathVariable Long id,
                                         @Valid @RequestBody AprobacionProductoRequest req) {
         productoService.aprobarProducto(id, req.getPrecioBase());
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/admin/{id}/rechazar")
+    public ResponseEntity<Void> rechazar(@PathVariable Long id,
+                                          @Valid @RequestBody RechazoProductoRequest req) {
+        productoService.rechazarProducto(id, req.getMotivoRechazo());
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}/aceptar-precio")
+    public ResponseEntity<Void> aceptarPrecio(@PathVariable Long id, Authentication auth) {
+        productoService.aceptarPrecio(id, auth.getName());
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}/rechazar-precio")
+    public ResponseEntity<Void> rechazarPrecio(@PathVariable Long id, Authentication auth) {
+        productoService.rechazarPrecio(id, auth.getName());
         return ResponseEntity.ok().build();
     }
 

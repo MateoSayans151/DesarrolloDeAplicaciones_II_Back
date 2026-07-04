@@ -23,7 +23,7 @@ public class Producto {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EstadoProducto estado = EstadoProducto.PENDIENTE;
+    private EstadoProducto estado = EstadoProducto.PENDIENTE_INSPECCION;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String descripcionCompleta;
@@ -54,15 +54,18 @@ public class Producto {
     @Column(columnDefinition = "TEXT")
     private String motivoRechazo;
 
+    @Column(precision = 18, scale = 2)
+    private java.math.BigDecimal precioPropuesto;
+
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Foto> fotos;
 
     public enum EstadoProducto {
-        PENDIENTE,
-        ACEPTADO,
+        PENDIENTE_INSPECCION,
         RECHAZADO,
-        DEVUELTO,
-        EN_SUBASTA,
-        VENDIDO
+        PROPUESTA_ENVIADA,
+        ACEPTADO_POR_USUARIO,
+        RECHAZADO_POR_USUARIO,
+        INCLUIDO_EN_SUBASTA
     }
 }

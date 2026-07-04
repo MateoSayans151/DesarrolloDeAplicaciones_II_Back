@@ -29,8 +29,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        // Si ya hay productos, asumimos que la DB ya se pobló para no duplicar datos
-        if (productoRepository.count() > 0) {
+        if (productoRepository.count() > 0 || subastaRepository.count() > 0 || asistenteRepository.count() > 0) {
             System.out.println("La base de datos ya contiene registros. Se omite el Seeder.");
             return;
         }
@@ -76,39 +75,72 @@ public class DatabaseSeeder implements CommandLineRunner {
         // 4. CREAR PRODUCTOS
         Producto reloj = new Producto();
         reloj.setFecha(LocalDate.now().minusDays(10));
-        reloj.setEstado(Producto.EstadoProducto.ACEPTADO);
+        reloj.setEstado(Producto.EstadoProducto.INCLUIDO_EN_SUBASTA);
         reloj.setDescripcionCompleta("Reloj Rolex Submariner Edición Limitada. Acero inoxidable y oro.");
         reloj.setPropietarioUsuario(postor2);
         reloj.setPolizaSeguro("POL-RLX-9988");
         reloj.setAseguradora("Zurich Seguros");
         reloj.setMontoAsegurado(new BigDecimal("12000.00"));
+        reloj.setPrecioPropuesto(new BigDecimal("10000.00"));
         reloj.setOrigenLicitoDeclarado(true);
         reloj.setPropietarioDeclarado(true);
 
         Producto cuadro = new Producto();
         cuadro.setFecha(LocalDate.now().minusDays(5));
-        cuadro.setEstado(Producto.EstadoProducto.ACEPTADO);
+        cuadro.setEstado(Producto.EstadoProducto.INCLUIDO_EN_SUBASTA);
         cuadro.setDescripcionCompleta("Cuadro original de Benito Quinquela Martín - 'Día de Trabajo'.");
         cuadro.setPropietarioUsuario(admin);
         cuadro.setPolizaSeguro("POL-ART-1122");
         cuadro.setAseguradora("Allianz");
         cuadro.setMontoAsegurado(new BigDecimal("45000.00"));
+        cuadro.setPrecioPropuesto(new BigDecimal("50000.00"));
         cuadro.setArtista("Benito Quinquela Martín");
         cuadro.setOrigenLicitoDeclarado(true);
         cuadro.setPropietarioDeclarado(true);
 
         Producto jarron = new Producto();
         jarron.setFecha(LocalDate.now().minusDays(2));
-        jarron.setEstado(Producto.EstadoProducto.ACEPTADO);
+        jarron.setEstado(Producto.EstadoProducto.INCLUIDO_EN_SUBASTA);
         jarron.setDescripcionCompleta("Jarrón de porcelana fina, Dinastía Ming. Siglo XV.");
         jarron.setPropietarioUsuario(postor2);
         jarron.setPolizaSeguro("POL-MNG-5544");
         jarron.setAseguradora("La Caja");
         jarron.setMontoAsegurado(new BigDecimal("80000.00"));
+        jarron.setPrecioPropuesto(new BigDecimal("85000.00"));
         jarron.setOrigenLicitoDeclarado(true);
         jarron.setPropietarioDeclarado(true);
 
-        productoRepository.saveAll(List.of(reloj, cuadro, jarron));
+        // Productos de prueba para ejercitar el flujo de aprobación de punta a punta
+        Producto pendienteInspeccion = new Producto();
+        pendienteInspeccion.setFecha(LocalDate.now());
+        pendienteInspeccion.setEstado(Producto.EstadoProducto.PENDIENTE_INSPECCION);
+        pendienteInspeccion.setDescripcionCompleta("Espada ceremonial japonesa (Katana), período Edo.");
+        pendienteInspeccion.setPropietarioUsuario(postor1);
+        pendienteInspeccion.setMontoAsegurado(new BigDecimal("30000.00"));
+        pendienteInspeccion.setOrigenLicitoDeclarado(true);
+        pendienteInspeccion.setPropietarioDeclarado(true);
+
+        Producto propuestaEnviada = new Producto();
+        propuestaEnviada.setFecha(LocalDate.now().minusDays(1));
+        propuestaEnviada.setEstado(Producto.EstadoProducto.PROPUESTA_ENVIADA);
+        propuestaEnviada.setDescripcionCompleta("Escultura de bronce, autor anónimo, circa 1920.");
+        propuestaEnviada.setPropietarioUsuario(postor1);
+        propuestaEnviada.setMontoAsegurado(new BigDecimal("20000.00"));
+        propuestaEnviada.setPrecioPropuesto(new BigDecimal("22000.00"));
+        propuestaEnviada.setOrigenLicitoDeclarado(true);
+        propuestaEnviada.setPropietarioDeclarado(true);
+
+        Producto aceptadoPorUsuario = new Producto();
+        aceptadoPorUsuario.setFecha(LocalDate.now().minusDays(2));
+        aceptadoPorUsuario.setEstado(Producto.EstadoProducto.ACEPTADO_POR_USUARIO);
+        aceptadoPorUsuario.setDescripcionCompleta("Colección de monedas de plata, siglo XIX.");
+        aceptadoPorUsuario.setPropietarioUsuario(postor1);
+        aceptadoPorUsuario.setMontoAsegurado(new BigDecimal("15000.00"));
+        aceptadoPorUsuario.setPrecioPropuesto(new BigDecimal("16000.00"));
+        aceptadoPorUsuario.setOrigenLicitoDeclarado(true);
+        aceptadoPorUsuario.setPropietarioDeclarado(true);
+
+        productoRepository.saveAll(List.of(reloj, cuadro, jarron, pendienteInspeccion, propuestaEnviada, aceptadoPorUsuario));
 
 
         // ====================================================================
@@ -143,12 +175,16 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         // Registrar asistentes
         Asistente asis1 = new Asistente(null, 1, postor1, subastaFin);
-        Asistente asis2 = new Asistente(null, 2, postor2, subastaFin);
-        asistenteRepository.saveAll(List.of(asis1, asis2));
+        if (postor2 != postor1) {
+            Asistente asis2 = new Asistente(null, 2, postor2, subastaFin);
+            asistenteRepository.saveAll(List.of(asis1, asis2));
+        } else {
+            asistenteRepository.save(asis1);
+        }
 
         // Generar Pujas
         Puja puja1 = new Puja(null, asis1, itemReloj, new BigDecimal("10500.00"), Puja.EstadoGanador.no);
-        Puja puja2 = new Puja(null, asis2, itemReloj, new BigDecimal("11000.00"), Puja.EstadoGanador.si); // Ganadora
+        Puja puja2 = new Puja(null, asis1, itemReloj, new BigDecimal("11000.00"), Puja.EstadoGanador.si); // Ganadora
         pujaRepository.saveAll(List.of(puja1, puja2));
 
         // Generar Registro de Venta Oficial

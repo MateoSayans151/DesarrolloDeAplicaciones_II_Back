@@ -144,15 +144,23 @@ public class CatalogoService {
         }
         Producto producto = productoRepository.findById(req.getProducto())
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
+        if (producto.getEstado() != Producto.EstadoProducto.ACEPTADO_POR_USUARIO) {
+            throw new ConflictException("El producto debe estar en estado ACEPTADO_POR_USUARIO para agregarse a un catálogo");
+        }
         if (itemCatalogoRepository.existsByProductoId(req.getProducto())) {
             throw new ConflictException("El producto ya está asignado a otra subasta");
         }
         ItemCatalogo item = new ItemCatalogo();
         item.setCatalogo(catalogo);
         item.setProducto(producto);
-        item.setPrecioBase(req.getPrecioBase());
+        item.setPrecioBase(producto.getPrecioPropuesto());
         item.setComision(req.getComision());
         item.setSubastado(ItemCatalogo.subastado_bool.no);
-        return ItemCatalogoResponse.from(itemCatalogoRepository.save(item));
+        ItemCatalogo guardado = itemCatalogoRepository.save(item);
+
+        producto.setEstado(Producto.EstadoProducto.INCLUIDO_EN_SUBASTA);
+        productoRepository.save(producto);
+
+        return ItemCatalogoResponse.from(guardado);
     }
 }
