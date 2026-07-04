@@ -1,5 +1,6 @@
 package com.subastaapp.dto.response;
 
+import com.subastaapp.model.NivelCategoria;
 import com.subastaapp.model.Usuario;
 import lombok.Data;
 
@@ -9,7 +10,7 @@ public class UsuarioPublicoResponse {
     private String nombre;
     private String apellido;
     private String fotoBase64;
-    private String categoria;
+    private NivelCategoria nivelCategoria;
 
     public static UsuarioPublicoResponse from(Usuario u) {
         UsuarioPublicoResponse r = new UsuarioPublicoResponse();
@@ -17,7 +18,7 @@ public class UsuarioPublicoResponse {
         r.setNombre(u.getNombre());
         r.setApellido(u.getApellido());
         r.setFotoBase64(u.getFotoBase64());
-        r.setCategoria(u.getNivelCategoria() != null ? u.getNivelCategoria().getNombre() : null);
+        r.setNivelCategoria(u.getNivelCategoria());
         return r;
     }
 }

@@ -1,7 +1,12 @@
 package com.subastaapp.dto.request;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class ProductoRequest {
@@ -9,7 +14,7 @@ public class ProductoRequest {
     @NotBlank
     private String descripcionCompleta;
     private Long propietarioUsuarioId;
-    
+
     // Campos de Seguro
     private String polizaSeguro;
     private String aseguradora;
@@ -25,4 +30,10 @@ public class ProductoRequest {
     // Declaraciones
     private Boolean origenLicitoDeclarado;
     private Boolean propietarioDeclarado;
+
+    // Fotos del producto (mínimo 6)
+    @NotNull(message = "Se requieren al menos 6 fotos")
+    @Size(min = 6, message = "Se requieren al menos 6 fotos")
+    @Valid
+    private List<FotoRequest> fotos;
 }

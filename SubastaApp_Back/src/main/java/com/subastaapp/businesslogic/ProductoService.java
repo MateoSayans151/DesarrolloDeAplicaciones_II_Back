@@ -138,6 +138,18 @@ private Producto buildProducto(ProductoRequest req, Usuario propietario) {
     p.setUbicacionDeposito(req.getUbicacionDeposito());
     p.setOrigenLicitoDeclarado(req.getOrigenLicitoDeclarado() != null && req.getOrigenLicitoDeclarado());
     p.setPropietarioDeclarado(req.getPropietarioDeclarado() != null && req.getPropietarioDeclarado());
+
+    // Fotos (mínimo 6, validado en ProductoRequest). Se persisten en cascada con el producto.
+    java.util.List<Foto> fotos = new java.util.ArrayList<>();
+    if (req.getFotos() != null) {
+        for (FotoRequest fr : req.getFotos()) {
+            Foto foto = new Foto();
+            foto.setProducto(p);
+            foto.setFotoBase64(fr.getFotoBase64());
+            fotos.add(foto);
+        }
+    }
+    p.setFotos(fotos);
     return p;
 }
 

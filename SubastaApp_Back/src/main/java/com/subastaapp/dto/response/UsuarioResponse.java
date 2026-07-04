@@ -1,5 +1,6 @@
 package com.subastaapp.dto.response;
 
+import com.subastaapp.model.NivelCategoria;
 import com.subastaapp.model.Usuario;
 import lombok.Data;
 import java.util.List;
@@ -18,7 +19,7 @@ public class UsuarioResponse {
     private String fotoDocumentoFrente;
     private String fotoDocumentoDorso;
     private Usuario.EstadoVerificacion verificado;
-    private String categoria;
+    private NivelCategoria nivelCategoria;
     private Usuario.EstadoVerificacion verificacionFinanciera;
     private Usuario.EstadoVerificacion verificacionJudicial;
     private Integer calificacionRiesgo;
@@ -37,7 +38,7 @@ public class UsuarioResponse {
         r.setFotoDocumentoFrente(u.getFotoDocumentoFrente());
         r.setFotoDocumentoDorso(u.getFotoDocumentoDorso());
         r.setVerificado(u.getVerificado());
-        r.setCategoria(u.getNivelCategoria() != null ? u.getNivelCategoria().getNombre() : null);
+        r.setNivelCategoria(u.getNivelCategoria());
         r.setCalificacionRiesgo(u.getCalificacionRiesgo());
         r.setVerificacionFinanciera(u.getVerificacionFinanciera());
         r.setVerificacionJudicial(u.getVerificacionJudicial());
