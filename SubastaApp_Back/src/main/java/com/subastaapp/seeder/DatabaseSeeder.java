@@ -3,7 +3,6 @@ package com.subastaapp.seeder;
 import com.subastaapp.model.*;
 import com.subastaapp.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,7 +13,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class DatabaseSeeder implements CommandLineRunner {
+public class DatabaseSeeder {
 
     private final UsuarioRepository usuarioRepository;
     private final ProductoRepository productoRepository;
@@ -26,9 +25,8 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final RegistroSubastaRepository registroSubastaRepository;
     private final NivelCategoriaRepository nivelCategoriaRepository;
 
-    @Override
     @Transactional
-    public void run(String... args) throws Exception {
+    public void seed() {
         if (productoRepository.count() > 0 || subastaRepository.count() > 0 || asistenteRepository.count() > 0) {
             System.out.println("La base de datos ya contiene registros. Se omite el Seeder.");
             return;
