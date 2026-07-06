@@ -81,7 +81,9 @@ public class UsuarioService {
                 .map(pagoReq -> medioPagoMapper.toEntity(pagoReq, usuario))
                 .collect(Collectors.toList());
         usuario.setMedioPagos(entidadesPago);
-
+        NivelCategoria nivelComun = nivelCategoriaRepository.findByNombre("comun")
+                .orElseThrow(() -> new ResourceNotFoundException("Nivel 'comun' no encontrado"));
+        usuario.setNivelCategoria(nivelComun);
         return  UsuarioResponse.from(usuarioRepository.save(usuario));
     }
 
